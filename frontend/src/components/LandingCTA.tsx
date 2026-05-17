@@ -16,14 +16,20 @@ export default function LandingCTA({
   error,
 }: Props) {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+    <main
+      className="min-h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #FFFBEB 0%, #FFE4E6 33%, #FAE8FF 66%, #DBEAFE 100%)",
+      }}
+    >
       <section className="max-w-5xl mx-auto px-6 py-12 space-y-8">
         <header className="text-center space-y-3">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.05]">
+          <h1 className="text-gradient-brand text-4xl sm:text-5xl font-extrabold tracking-tight leading-[1.05] pb-1">
             Resume Builder
           </h1>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Create a polished, typeset résumé in minutes — seven themes, AI bullet polish,
+            Create a polished, typeset résumé in minutes. Seven themes, AI bullet polish,
             one-click PDF.
           </p>
         </header>
@@ -37,7 +43,7 @@ export default function LandingCTA({
             tone="indigo"
             icon="⬆"
             title="Upload résumé"
-            description="PDF or paste — we extract structured fields with AI."
+            description="PDF, Word or paste. We extract structured fields with AI."
             cta="Choose file or paste"
           />
           <Card
@@ -57,9 +63,14 @@ export default function LandingCTA({
           </p>
         )}
 
-        <footer className="pt-2 text-center text-xs text-slate-500 max-w-md mx-auto">
-          Privacy: this demo does not store résumés. Data is processed transiently for
-          rendering and AI polishing.
+        <footer className="pt-2 text-center text-xs text-slate-500 max-w-lg mx-auto">
+          No private data is stored on our side unless you consent at the download step.
+          Résumés are processed transiently; we only use Google Gemini on GCP to organise
+          your CV.{" "}
+          <a href="/privacy" className="font-medium text-indigo-600 hover:underline">
+            Privacy policy
+          </a>
+          .
         </footer>
       </section>
     </main>

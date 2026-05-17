@@ -186,7 +186,7 @@ function ExperienceSection({
                 label="Date"
                 value={e.date}
                 onChange={(v) => updateAt(i, { date: v })}
-                placeholder="Jun 2023 — Present"
+                placeholder="Jun 2023 - Present"
               />
             </div>
             <BulletList
@@ -243,7 +243,7 @@ function EducationSection({
                 label="Date"
                 value={e.date}
                 onChange={(v) => updateAt(i, { date: v })}
-                placeholder="2016 — 2018"
+                placeholder="2016 - 2018"
               />
             </div>
             <BulletList

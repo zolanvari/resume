@@ -42,7 +42,7 @@ export default function SubscribeCard({ turnstileToken }: Props) {
   if (done) {
     return (
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-        Thanks — you're on the list. Unsubscribe info will be in the first update email.
+        Thanks! You're on the list. Unsubscribe info will be in the first update email.
       </div>
     );
   }
