@@ -107,6 +107,36 @@ export async function subscribe(opts: {
   }
 }
 
+export async function consentDownload(opts: {
+  resume: ResumeData;
+  theme: Theme;
+  name: string;
+  email: string;
+  turnstileToken?: string;
+}): Promise<void> {
+  const r = await fetch("/api/consent-download", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      resume: opts.resume,
+      theme: opts.theme,
+      name: opts.name,
+      email: opts.email,
+      turnstile_token: opts.turnstileToken,
+    }),
+  });
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "");
+    let detail = txt;
+    try {
+      detail = (JSON.parse(txt) as { detail?: string }).detail || txt;
+    } catch {
+      /* fall through */
+    }
+    throw new Error(detail || `Consent request failed: ${r.status}`);
+  }
+}
+
 export async function polishBullets(
   resume: ResumeData,
   bulletIds: string[],

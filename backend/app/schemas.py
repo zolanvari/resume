@@ -105,3 +105,17 @@ class ClientLogRequest(BaseModel):
     url: str | None = Field(default=None, max_length=500)
     user_agent: str | None = Field(default=None, max_length=500)
     kind: Literal["boundary", "error", "unhandledrejection"] = "error"
+
+
+class ConsentDownloadRequest(BaseModel):
+    """Sent when a user opts in to storage/news at the download step."""
+
+    resume: ResumeData
+    theme: Theme = Theme.aurora_violet
+    name: str = Field(min_length=1, max_length=120)
+    email: str = Field(min_length=3, max_length=200, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    turnstile_token: str | None = None
+
+
+class ConsentResponse(BaseModel):
+    ok: bool

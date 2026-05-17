@@ -22,5 +22,11 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Consent store. The DB lives on a persistent volume; PII columns are
+    # encrypted at rest with the Fernet key below. If the key is empty the
+    # consent feature is treated as disabled (nothing is persisted).
+    store_db_path: str = "/data/cv.db"
+    store_encryption_key: str = ""
+
 
 settings = Settings()

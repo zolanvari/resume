@@ -6,8 +6,13 @@ services:
       - "127.0.0.1:8003:8000"
     env_file:
       - .env
+    volumes:
+      - cv_data:/data
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+
+volumes:
+  cv_data:

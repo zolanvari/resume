@@ -13,6 +13,10 @@ import PrivacyNote from "./components/PrivacyNote";
 import SubscribeCard from "./components/SubscribeCard";
 import TurnstileWidget from "./components/TurnstileWidget";
 import UploadDropzone from "./components/UploadDropzone";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import GdprBanner from "./components/GdprBanner";
+import PiiNoticeModal, { detectPii } from "./components/PiiNoticeModal";
+import ConsentModal from "./components/ConsentModal";
 
 const TURNSTILE_SITE_KEY: string | undefined = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
@@ -31,6 +35,20 @@ function updateBulletText(resume: ResumeData, bulletId: string, text: string): R
 }
 
 export default function App() {
+  // Plain pathname routing — nginx's SPA fallback serves index.html for any
+  // path, so /privacy needs no router dependency.
+  if (typeof window !== "undefined" && window.location.pathname === "/privacy") {
+    return <PrivacyPolicy />;
+  }
+  return (
+    <>
+      <ResumeApp />
+      <GdprBanner />
+    </>
+  );
+}
+
+function ResumeApp() {
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [theme, setTheme] = useState<Theme>("aurora-violet");
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -39,6 +57,8 @@ export default function App() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [tone, setToneState] = useState<Tone>("impact");
   const [showUpload, setShowUpload] = useState(false);
+  const [piiPending, setPiiPending] = useState<ResumeData | null>(null);
+  const [showConsent, setShowConsent] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -69,9 +89,20 @@ export default function App() {
   }
 
   function handleUploadParsed(parsed: ResumeData) {
-    setResume(parsed);
     setShowUpload(false);
-    updatePreview(parsed, theme);
+    // If the parsed résumé carries structured PII, warn before the editor.
+    if (detectPii(parsed).length > 0) {
+      setPiiPending(parsed);
+    } else {
+      setResume(parsed);
+      updatePreview(parsed, theme);
+    }
+  }
+
+  function handlePiiConfirmed(redacted: ResumeData) {
+    setPiiPending(null);
+    setResume(redacted);
+    updatePreview(redacted, theme);
   }
 
   function handleThemeChange(t: Theme) {
@@ -91,6 +122,10 @@ export default function App() {
         turnstileSiteKey={TURNSTILE_SITE_KEY}
       />
     );
+  }
+
+  if (piiPending) {
+    return <PiiNoticeModal resume={piiPending} onConfirm={handlePiiConfirmed} />;
   }
 
   if (!resume) {
@@ -117,11 +152,17 @@ export default function App() {
     >
       <ToneSync tone={tone} />
 
-      <div className="min-h-screen bg-slate-50">
+      <div
+        className="min-h-screen"
+        style={{
+          background:
+            "linear-gradient(135deg, #FFFBEB 0%, #FFE4E6 33%, #FAE8FF 66%, #DBEAFE 100%)",
+        }}
+      >
         <header className="sticky top-0 z-10 bg-white border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <h1 className="text-base font-semibold text-slate-900">
-              Resume Builder
+            <h1 className="text-base font-semibold">
+              <span className="text-gradient-brand">Resume Builder</span>
               <span className="ml-2 text-xs font-normal text-slate-500">
                 cv.zolanvari.com
               </span>
@@ -144,7 +185,11 @@ export default function App() {
               >
                 {rendering ? "Rendering…" : "Update preview"}
               </button>
-              <DownloadButton url={pdfUrl} filename={filename} disabled={rendering} />
+              <DownloadButton
+                url={pdfUrl}
+                disabled={rendering}
+                onClick={() => setShowConsent(true)}
+              />
             </div>
           </div>
         </header>
@@ -174,6 +219,17 @@ export default function App() {
           </section>
         </main>
       </div>
+
+      {showConsent && pdfUrl && (
+        <ConsentModal
+          url={pdfUrl}
+          filename={filename}
+          resume={resume}
+          theme={theme}
+          turnstileToken={turnstileToken}
+          onClose={() => setShowConsent(false)}
+        />
+      )}
     </PolishProvider>
   );
 }

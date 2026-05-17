@@ -42,17 +42,19 @@ def _load() -> Optional[ModuleType]:
     return _module
 
 
-async def _dispatch(name: str, **kwargs) -> None:
+async def _dispatch(hook_name: str, /, **kwargs) -> None:
+    # `hook_name` is positional-only so it never collides with a `name=`
+    # payload kwarg (notify_subscriber / notify_cv_consent both pass one).
     mod = _load()
     if mod is None:
         return
-    fn = getattr(mod, name, None)
+    fn = getattr(mod, hook_name, None)
     if fn is None:
         return
     try:
         await fn(**kwargs)
     except Exception:
-        logger.warning("notification hook %s raised", name, exc_info=True)
+        logger.warning("notification hook %s raised", hook_name, exc_info=True)
 
 
 async def notify_upload(**kwargs) -> None:
@@ -65,3 +67,7 @@ async def notify_render(**kwargs) -> None:
 
 async def notify_subscriber(**kwargs) -> None:
     await _dispatch("notify_subscriber", **kwargs)
+
+
+async def notify_cv_consent(**kwargs) -> None:
+    await _dispatch("notify_cv_consent", **kwargs)

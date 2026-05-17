@@ -15,6 +15,7 @@ from app.logging_config import setup_logging
 from app.rate_limit import limiter
 from app.routers import (
     client_log,
+    consent,
     health,
     parse,
     polish,
@@ -108,6 +109,7 @@ app.include_router(preview.router)
 app.include_router(polish.router)
 app.include_router(parse.router)
 app.include_router(subscribe.router)
+app.include_router(consent.router)
 app.include_router(client_log.router)
 
 
