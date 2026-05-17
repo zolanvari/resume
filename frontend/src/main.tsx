@@ -3,7 +3,11 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { reportClientError } from "./api";
+import { initAnalyticsFromStoredConsent } from "./analytics";
 import "./styles.css";
+
+// Resume Google Analytics only if the visitor accepted on a previous visit.
+initAnalyticsFromStoredConsent();
 
 // Catch errors that escape React (async callbacks, event handlers, promises).
 window.addEventListener("error", (e) => {

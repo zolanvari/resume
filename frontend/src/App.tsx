@@ -39,7 +39,12 @@ export default function App() {
   // Plain pathname routing — nginx's SPA fallback serves index.html for any
   // path, so /privacy needs no router dependency.
   if (typeof window !== "undefined" && window.location.pathname === "/privacy") {
-    return <PrivacyPolicy />;
+    return (
+      <>
+        <PrivacyPolicy />
+        <GdprBanner />
+      </>
+    );
   }
   if (typeof window !== "undefined" && window.location.pathname === "/logo") {
     return <Logo />;

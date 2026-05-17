@@ -1,3 +1,5 @@
+import { clearStoredConsent, getStoredConsent } from "../analytics";
+
 /**
  * Static privacy policy, served at /privacy. The app has no router — nginx's
  * SPA fallback serves index.html for the path and App renders this when
@@ -5,6 +7,13 @@
  * so no router dependency is needed.
  */
 export default function PrivacyPolicy() {
+  const consent = getStoredConsent();
+
+  function manageCookies() {
+    clearStoredConsent();
+    window.location.reload();
+  }
+
   return (
     <main
       className="min-h-screen"
@@ -59,12 +68,39 @@ export default function PrivacyPolicy() {
             can withdraw at any time — see section 6.
           </Section>
 
-          <Section title="5. Bot protection">
+          <Section title="5. Analytics & cookies">
+            We use Google Analytics to understand how the site is used — but only if you
+            accept analytics cookies in the consent banner. Until you accept, no
+            analytics script, cookie or request to Google is loaded. If you decline, the
+            site works exactly the same. Google Analytics never receives your résumé
+            content; it only sees standard usage data (pages, approximate region,
+            device). You can change your choice at any time:
+            <span className="mt-2 block">
+              <span className="text-xs text-slate-500">
+                Current choice:{" "}
+                <strong className="text-slate-700">
+                  {consent === "granted"
+                    ? "analytics accepted"
+                    : consent === "denied"
+                      ? "analytics declined"
+                      : "not set"}
+                </strong>
+              </span>
+              <button
+                onClick={manageCookies}
+                className="mt-1.5 inline-flex rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+              >
+                Change my cookie choice
+              </button>
+            </span>
+          </Section>
+
+          <Section title="6. Bot protection">
             We use Cloudflare Turnstile to block automated abuse. Turnstile may set its
             own cookies or tokens; see Cloudflare's privacy policy for details.
           </Section>
 
-          <Section title="6. Your rights & removing your data">
+          <Section title="7. Your rights & removing your data">
             To access, correct or delete any data you consented to store, email{" "}
             <a
               href="mailto:iman@zolanvari.com"
