@@ -13,7 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.config import settings
 from app.logging_config import setup_logging
 from app.rate_limit import limiter
-from app.routers import health, parse, polish, render, sample, subscribe
+from app.routers import health, parse, polish, preview, render, sample, subscribe
 
 setup_logging(settings.log_level)
 logger = logging.getLogger("resume-builder")
@@ -95,6 +95,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(health.router)
 app.include_router(sample.router)
 app.include_router(render.router)
+app.include_router(preview.router)
 app.include_router(polish.router)
 app.include_router(parse.router)
 app.include_router(subscribe.router)
