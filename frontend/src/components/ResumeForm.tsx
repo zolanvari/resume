@@ -130,7 +130,18 @@ function ContactSection({
           onChange={(v) => set("website", v)}
           placeholder="https://…"
         />
-        <Input label="Address" value={c.address ?? ""} onChange={(v) => set("address", v)} />
+        <Input
+          label="Portfolio"
+          value={c.portfolio ?? ""}
+          onChange={(v) => set("portfolio", v)}
+          placeholder="https://…"
+        />
+        <Input
+          label="Address"
+          value={c.address ?? ""}
+          onChange={(v) => set("address", v)}
+          className="sm:col-span-2"
+        />
       </div>
 
       <FieldLabel className="mt-5">Profile summary</FieldLabel>
@@ -140,6 +151,13 @@ function ContactSection({
         rows={4}
         placeholder="A few sentences positioning what you do and what you're best at."
       />
+      <p className="mt-1.5 text-xs text-slate-400">
+        Tip: add a clickable link with{" "}
+        <code className="rounded bg-slate-100 px-1 py-0.5 text-[11px] text-slate-600">
+          [label](https://…)
+        </code>{" "}
+        — works here and in any bullet.
+      </p>
     </Section>
   );
 }

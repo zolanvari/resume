@@ -23,6 +23,7 @@ class Contact(BaseModel):
     linkedin: str | None = None  # username only (no URL prefix)
     github: str | None = None  # username only
     website: str | None = None  # full URL
+    portfolio: str | None = None  # full URL — portfolio / personal project site
     address: str | None = None
 
 

@@ -68,6 +68,7 @@ export interface Contact {
   linkedin?: string | null;
   github?: string | null;
   website?: string | null;
+  portfolio?: string | null;
   address?: string | null;
 }
 

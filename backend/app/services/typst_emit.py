@@ -8,6 +8,8 @@ The template's public API (`resume`, `resume-entry`, `resume-item`,
 internals are referenced from Python.
 """
 
+import re
+
 from app.schemas import (
     Bullet,
     EducationEntry,
@@ -17,18 +19,36 @@ from app.schemas import (
     Theme,
 )
 
+# Markdown-style link `[label](https://…)` in body text. Only http(s) URLs
+# are linkified; anything else is left as literal text.
+_MD_LINK_RE = re.compile(r"\[([^\]\n]+)\]\((https?://[^)\s]+)\)")
+
 
 def _ts(s: str) -> str:
     """Escape a value for a Typst double-quoted string literal."""
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
-def _tm(s: str) -> str:
-    """Escape a value for Typst markup context (bullet body text)."""
+def _tm_escape(s: str) -> str:
+    """Escape plain text for Typst markup context (bullet/summary body)."""
     s = s.replace("\\", "\\\\")
     for c in ("#", "@", "*", "_", "$", "<", ">", "/"):
         s = s.replace(c, "\\" + c)
     return s
+
+
+def _tm(s: str) -> str:
+    """Escape body text for Typst markup, turning `[label](https://…)` into
+    clickable links via the template's `cv-link` helper."""
+    out: list[str] = []
+    pos = 0
+    for m in _MD_LINK_RE.finditer(s):
+        out.append(_tm_escape(s[pos : m.start()]))
+        label = _tm_escape(m.group(1)).replace("[", "\\[")
+        out.append(f'#cv-link("{_ts(m.group(2))}")[{label}]')
+        pos = m.end()
+    out.append(_tm_escape(s[pos:]))
+    return "".join(out)
 
 
 def _author_dict(resume: ResumeData) -> str:
@@ -47,6 +67,8 @@ def _author_dict(resume: ResumeData) -> str:
         parts.append(f'github: "{_ts(c.github)}"')
     if c.website:
         parts.append(f'homepage: "{_ts(c.website)}"')
+    if c.portfolio:
+        parts.append(f'website: "{_ts(c.portfolio)}"')
     if c.address:
         parts.append(f'address: "{_ts(c.address)}"')
     if c.headline:
