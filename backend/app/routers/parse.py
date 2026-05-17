@@ -6,7 +6,7 @@ from app.config import settings
 from app.rate_limit import limiter
 from app.schemas import ResumeData
 from app.services.ai.factory import get_ai_provider
-from app.services.pdf_parser import extract_text_from_pdf
+from app.services.file_extract import UnsupportedFileType, extract_resume_text
 from app.services.notify import notify_upload
 from app.services.turnstile import verify_turnstile_token
 
@@ -38,23 +38,17 @@ async def post_parse(
         contents = await file.read()
         if len(contents) > settings.max_pdf_mb * 1024 * 1024:
             raise HTTPException(status_code=413, detail=f"File exceeds {settings.max_pdf_mb} MB.")
-        name = (file.filename or "").lower()
-        ctype = (file.content_type or "").lower()
-        if name.endswith(".pdf") or "pdf" in ctype:
-            try:
-                raw_text = extract_text_from_pdf(contents)
-            except Exception as exc:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Could not read PDF: {exc}",
-                ) from exc
-        elif name.endswith(".txt") or ctype.startswith("text/"):
-            raw_text = contents.decode("utf-8", errors="replace")
-        else:
+        try:
+            raw_text = extract_resume_text(
+                file.filename, file.content_type or "", contents
+            )
+        except UnsupportedFileType as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
             raise HTTPException(
                 status_code=400,
-                detail="Unsupported file type. Upload a PDF or paste your résumé as text.",
-            )
+                detail=f"Could not read the file: {exc}",
+            ) from exc
     elif text:
         raw_text = text
 

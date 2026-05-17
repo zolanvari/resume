@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     unzip \
     xz-utils \
+    antiword \
     fontconfig \
     fonts-liberation \
     fonts-noto-color-emoji \

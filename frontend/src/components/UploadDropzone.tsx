@@ -30,8 +30,8 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
       setError(`File is over 5 MB.`);
       return;
     }
-    if (!/\.(pdf|txt)$/i.test(f.name)) {
-      setError("PDF or .txt only. Paste the text instead for other formats.");
+    if (!/\.(pdf|docx|doc|txt)$/i.test(f.name)) {
+      setError("PDF, Word (.doc/.docx) or .txt only. Paste the text for other formats.");
       return;
     }
     setError(null);
@@ -74,8 +74,8 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
           <header className="space-y-1">
             <h2 className="text-xl font-semibold text-slate-900">Upload your résumé</h2>
             <p className="text-sm text-slate-600">
-              PDF up to 5 MB, or paste the text. We extract structured fields with AI —
-              you can correct anything afterward.
+              PDF or Word (.doc/.docx) up to 5 MB, or paste the text. We extract structured
+              fields with AI. You can correct anything afterward.
             </p>
           </header>
 
@@ -121,13 +121,15 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
                   <p className="text-sm font-medium text-slate-900">
                     Drop your résumé here, or click to choose
                   </p>
-                  <p className="text-xs text-slate-500">PDF or .txt, up to 5 MB</p>
+                  <p className="text-xs text-slate-500">
+                    PDF, Word, or .txt — up to 5 MB
+                  </p>
                 </div>
               )}
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.txt,application/pdf,text/plain"
+                accept=".pdf,.docx,.doc,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                 className="hidden"
                 onChange={(e) => pickFile(e.target.files?.[0])}
               />
@@ -137,7 +139,7 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={10}
-              placeholder="Paste your résumé text here. Anything is fine — we'll normalize it."
+              placeholder="Paste your résumé text here. Anything is fine, we'll normalize it."
               className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
             />
           )}
@@ -160,7 +162,7 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
 
           <div className="flex justify-between items-center pt-1">
             <p className="text-xs text-slate-500">
-              Processed transiently. No résumé is stored.
+              Processed transiently — nothing is stored unless you consent at download.
             </p>
             <button
               onClick={submit}
