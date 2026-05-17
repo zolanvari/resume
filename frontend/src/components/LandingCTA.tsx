@@ -70,6 +70,10 @@ export default function LandingCTA({
           <a href="/privacy" className="font-medium text-indigo-600 hover:underline">
             Privacy policy
           </a>
+          {" · "}
+          <a href="/logo" className="font-medium text-indigo-600 hover:underline">
+            Brand &amp; identity
+          </a>
           .
         </footer>
       </section>

@@ -14,6 +14,7 @@ import SubscribeCard from "./components/SubscribeCard";
 import TurnstileWidget from "./components/TurnstileWidget";
 import UploadDropzone from "./components/UploadDropzone";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import Logo from "./components/Logo";
 import GdprBanner from "./components/GdprBanner";
 import PiiNoticeModal, { detectPii } from "./components/PiiNoticeModal";
 import ConsentModal from "./components/ConsentModal";
@@ -39,6 +40,9 @@ export default function App() {
   // path, so /privacy needs no router dependency.
   if (typeof window !== "undefined" && window.location.pathname === "/privacy") {
     return <PrivacyPolicy />;
+  }
+  if (typeof window !== "undefined" && window.location.pathname === "/logo") {
+    return <Logo />;
   }
   return (
     <>
