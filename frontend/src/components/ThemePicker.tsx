@@ -1,10 +1,99 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
+import { fetchPreviewSvg } from "../api";
 import { THEMES, type Theme } from "../types";
 
 interface Props {
   value: Theme;
   onChange: (t: Theme) => void;
+}
+
+// Module-level cache: one entry per theme slug. SVG pages are returned by
+// /api/preview/{theme} and are stable for the life of the deployment (the
+// sample resume and template are read-only), so memoising in the module is
+// safe and avoids re-fetching every time the picker mounts.
+const previewCache: Partial<Record<Theme, string[]>> = {};
+const inflight: Partial<Record<Theme, Promise<string[]>>> = {};
+
+function loadPreview(slug: Theme): Promise<string[]> {
+  const cached = previewCache[slug];
+  if (cached) return Promise.resolve(cached);
+  const existing = inflight[slug];
+  if (existing) return existing;
+  const p = fetchPreviewSvg(slug)
+    .then((pages) => {
+      previewCache[slug] = pages;
+      return pages;
+    })
+    .finally(() => {
+      delete inflight[slug];
+    });
+  inflight[slug] = p;
+  return p;
+}
+
+// Each preview page is a ~0.5-0.8 MB typst SVG with ~250 id-bearing nodes.
+// Injecting them inline (dangerouslySetInnerHTML) kept thousands of live vector
+// nodes in the DOM with cross-theme id collisions — heavy enough to crash the
+// renderer when the full-size modal stacked more on top. Instead we wrap each
+// SVG in a Blob and render it through <img>: the browser rasterises it once,
+// the markup is sandboxed (no id leakage, no script), and the DOM holds a
+// single image node. URLs are cached per theme for the page lifetime (7 themes
+// max), so there is nothing to revoke.
+const blobCache: Partial<Record<Theme, string[]>> = {};
+
+function toBlobUrls(slug: Theme, pages: string[]): string[] {
+  const cached = blobCache[slug];
+  if (cached) return cached;
+  const urls = pages.map((svg) =>
+    URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })),
+  );
+  blobCache[slug] = urls;
+  return urls;
+}
+
+/** Returns blob-URL previews for a theme, or null until they are available. */
+function useThemePreview(slug: Theme): string[] | null {
+  const initial = previewCache[slug];
+  const [urls, setUrls] = useState<string[] | null>(
+    initial ? toBlobUrls(slug, initial) : null,
+  );
+  useEffect(() => {
+    let cancelled = false;
+    const ready = previewCache[slug];
+    setUrls(ready ? toBlobUrls(slug, ready) : null);
+    loadPreview(slug)
+      .then((p) => {
+        if (!cancelled) setUrls(toBlobUrls(slug, p));
+      })
+      .catch(() => {
+        /* render-failed previews stay null; the tile shows its label */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+  return urls;
+}
+
+function ThumbnailImage({ urls, label }: { urls: string[] | null; label: string }) {
+  if (!urls || urls.length === 0) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400 bg-white">
+        {label}
+      </div>
+    );
+  }
+  // First page only for the tile thumbnail. The SVG and the tile share the A4
+  // aspect ratio, so object-cover fills without cropping.
+  return (
+    <img
+      aria-hidden
+      src={urls[0]}
+      alt=""
+      className="absolute inset-0 w-full h-full object-cover bg-white"
+    />
+  );
 }
 
 export default function ThemePicker({ value, onChange }: Props) {
@@ -15,13 +104,21 @@ export default function ThemePicker({ value, onChange }: Props) {
   const selected = THEMES[selectedIdx];
   const [previewSlug, setPreviewSlug] = useState<Theme | null>(null);
 
+  // Warm the cache for every theme on first paint so swapping tiles is
+  // instant. Errors are swallowed; the tile will just show its label.
+  useEffect(() => {
+    THEMES.forEach((t) => {
+      loadPreview(t.slug).catch(() => {});
+    });
+  }, []);
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 md:p-6">
       <header className="flex flex-wrap items-baseline justify-between gap-3 mb-2 md:mb-3">
         <div>
           <h3 className="text-base font-semibold text-slate-900">Template</h3>
           <p className="text-xs text-slate-500">
-            Pick a look — double-click any template to preview full size.
+            Pick a look. Click the selected tile again to preview full size.
           </p>
         </div>
         <span className="text-xs font-medium text-indigo-700 bg-indigo-100 rounded-full px-3 py-1.5 whitespace-nowrap">
@@ -30,44 +127,28 @@ export default function ThemePicker({ value, onChange }: Props) {
       </header>
 
       <div className="relative">
-        <div className="flex justify-center items-end gap-1 sm:gap-1.5 py-4 px-1 sm:px-2">
+        <div className="flex justify-center items-end py-6 px-1 sm:px-2">
           {THEMES.map((t, i) => {
             const isSelected = t.slug === value;
             const offset = i - selectedIdx;
-            const rotation = isSelected ? 0 : offset * 2.5;
-            const translateY = isSelected ? -10 : Math.abs(offset) * 3;
-            const scale = isSelected ? 1.08 : 1;
+            const rotation = isSelected ? 0 : offset * 3;
+            const translateY = isSelected ? -14 : Math.abs(offset) * 4;
+            const scale = isSelected ? 1.12 : 1;
             return (
-              <button
+              <ThumbnailTile
                 key={t.slug}
-                type="button"
-                onClick={() => onChange(t.slug)}
-                onDoubleClick={() => setPreviewSlug(t.slug)}
-                title={`${t.label} — double-click to preview`}
+                slug={t.slug}
+                label={t.label}
+                isSelected={isSelected}
                 style={{
                   transform: `translateY(${translateY}px) rotate(${rotation}deg) scale(${scale})`,
                   zIndex: isSelected ? 20 : 10 - Math.abs(offset),
+                  // Overlap each tile onto its left neighbour so the row reads as
+                  // a fanned stack rather than separated cards. ~18% of tile width.
+                  marginLeft: i === 0 ? 0 : "-20px",
                 }}
-                className={[
-                  "relative flex-1 min-w-0 max-w-[112px] aspect-[1/1.414] rounded-lg overflow-hidden border-2 shadow-md transition-transform duration-200 ease-out bg-white cursor-zoom-in select-none",
-                  isSelected
-                    ? "border-indigo-500 ring-2 ring-indigo-200"
-                    : "border-slate-200 hover:border-slate-400",
-                ].join(" ")}
-              >
-                <img
-                  src={`/themes/${t.slug}.png`}
-                  alt={t.label}
-                  loading="lazy"
-                  draggable={false}
-                  className="absolute inset-0 w-full h-full object-cover object-top"
-                />
-                {isSelected && (
-                  <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] flex items-center justify-center font-bold shadow">
-                    ✓
-                  </span>
-                )}
-              </button>
+                onClick={() => (isSelected ? setPreviewSlug(t.slug) : onChange(t.slug))}
+              />
             );
           })}
         </div>
@@ -78,7 +159,7 @@ export default function ThemePicker({ value, onChange }: Props) {
           className={`inline-block w-2 h-2 rounded-full mr-1.5 align-middle ${selected.swatch}`}
         />
         <span className="font-medium text-slate-900">{selected.label}</span>
-        {" — "}
+        {". "}
         {selected.description}
       </p>
 
@@ -93,6 +174,37 @@ export default function ThemePicker({ value, onChange }: Props) {
   );
 }
 
+interface TileProps {
+  slug: Theme;
+  label: string;
+  isSelected: boolean;
+  style: CSSProperties;
+  onClick: () => void;
+}
+
+function ThumbnailTile({ slug, label, isSelected, style, onClick }: TileProps) {
+  const urls = useThemePreview(slug);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={isSelected ? `${label}. Click to preview` : `${label}. Click to select`}
+      style={style}
+      className={[
+        "relative flex-1 min-w-0 max-w-[112px] aspect-[1/1.414] rounded-lg overflow-hidden border-2 shadow-md transition-transform duration-200 ease-out bg-white cursor-pointer select-none",
+        isSelected ? "border-indigo-500 ring-2 ring-indigo-200" : "border-slate-200 hover:border-slate-400",
+      ].join(" ")}
+    >
+      <ThumbnailImage urls={urls} label={label} />
+      {isSelected && (
+        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] flex items-center justify-center font-bold shadow z-10">
+          ✓
+        </span>
+      )}
+    </button>
+  );
+}
+
 interface PreviewProps {
   slug: Theme;
   onClose: () => void;
@@ -104,6 +216,7 @@ function ThemePreviewModal({ slug, onClose, onNavigate }: PreviewProps) {
   const theme = THEMES[idx];
   const prevTheme = THEMES[(idx - 1 + THEMES.length) % THEMES.length];
   const nextTheme = THEMES[(idx + 1) % THEMES.length];
+  const urls = useThemePreview(slug);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -146,6 +259,7 @@ function ThemePreviewModal({ slug, onClose, onNavigate }: PreviewProps) {
           className={`inline-block w-2 h-2 rounded-full mr-2 align-middle ${theme.swatch}`}
         />
         {theme.label} preview
+        {urls ? ` · ${urls.length} ${urls.length === 1 ? "page" : "pages"}` : ""}
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 px-4 relative">
@@ -174,13 +288,19 @@ function ThemePreviewModal({ slug, onClose, onNavigate }: PreviewProps) {
         </button>
 
         <div className="flex flex-col items-center gap-6">
-          <img
-            src={`/themes/${theme.slug}.png`}
-            alt={theme.label}
-            draggable={false}
-            onClick={(e) => e.stopPropagation()}
-            className="max-w-full w-auto h-auto rounded-lg shadow-2xl bg-white ring-1 ring-black/10 select-none"
-          />
+          {urls ? (
+            urls.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`${theme.label} page ${i + 1}`}
+                onClick={(e) => e.stopPropagation()}
+                className="block max-w-full h-auto rounded-lg shadow-2xl bg-white ring-1 ring-black/10 select-none"
+              />
+            ))
+          ) : (
+            <div className="text-white/70 text-sm py-12">Rendering preview…</div>
+          )}
         </div>
       </div>
     </div>

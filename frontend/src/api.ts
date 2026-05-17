@@ -1,5 +1,33 @@
 import type { PolishedBullet, ResumeData, Theme, Tone } from "./types";
 
+export interface ClientErrorReport {
+  kind: "boundary" | "error" | "unhandledrejection";
+  message: string;
+  stack?: string;
+}
+
+/** Ship a frontend error to the backend log. Fire-and-forget; never throws. */
+export function reportClientError(report: ClientErrorReport): void {
+  try {
+    void fetch("/api/client-log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        kind: report.kind,
+        message: (report.message || "unknown").slice(0, 2000),
+        stack: report.stack ? report.stack.slice(0, 8000) : null,
+        url: window.location.href.slice(0, 500),
+        user_agent: navigator.userAgent.slice(0, 500),
+      }),
+    }).catch(() => {
+      /* logging must never break the app */
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
 export interface ParseOptions {
   file?: File;
   text?: string;
@@ -29,6 +57,13 @@ export async function fetchSample(): Promise<ResumeData> {
   const r = await fetch("/api/sample");
   if (!r.ok) throw new Error(`Sample fetch failed: ${r.status}`);
   return r.json();
+}
+
+export async function fetchPreviewSvg(theme: Theme): Promise<string[]> {
+  const r = await fetch(`/api/preview/${theme}`);
+  if (!r.ok) throw new Error(`Preview fetch failed: ${r.status}`);
+  const data = (await r.json()) as { pages: string[] };
+  return data.pages;
 }
 
 export async function renderPdf(resume: ResumeData, theme: Theme): Promise<Blob> {

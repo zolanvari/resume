@@ -95,3 +95,13 @@ class SubscribeRequest(BaseModel):
 
 class SubscribeResponse(BaseModel):
     ok: bool
+
+
+class ClientLogRequest(BaseModel):
+    """A single error report sent by the frontend (error boundary or global handler)."""
+
+    message: str = Field(max_length=2000)
+    stack: str | None = Field(default=None, max_length=8000)
+    url: str | None = Field(default=None, max_length=500)
+    user_agent: str | None = Field(default=None, max_length=500)
+    kind: Literal["boundary", "error", "unhandledrejection"] = "error"
