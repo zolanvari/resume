@@ -24,7 +24,7 @@ RUN curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSIO
     install -m 0755 /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst && \
     rm -rf /tmp/typst.tar.xz /tmp/typst-x86_64-unknown-linux-musl
 
-# Inter (.ttc — full family), Source Sans 3, FontAwesome 6.
+# Inter (.ttc - full family), Source Sans 3, FontAwesome 6.
 RUN mkdir -p /usr/share/fonts/inter /usr/share/fonts/source-sans /usr/share/fonts/fontawesome && \
     curl -fsSL -o /tmp/inter.zip https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip && \
     unzip -q /tmp/inter.zip -d /tmp/inter && \

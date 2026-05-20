@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from "react";
 
+import { Link } from "../router";
+
 /**
- * /logo — the brand & identity page for cv.zolanvari.com.
+ * /logo - the brand & identity page for cv.zolanvari.com.
  *
  * A branded showcase: it documents the visual system by *using* it. Every
  * gradient and the shimmer wordmark below are the real production CSS, not
@@ -98,7 +100,7 @@ function useCopy(text: string): [boolean, () => void] {
         setTimeout(() => setCopied(false), 1500);
       })
       .catch(() => {
-        /* clipboard unavailable — no-op */
+        /* clipboard unavailable - no-op */
       });
   }
   return [copied, copy];
@@ -205,16 +207,16 @@ export default function Logo() {
             Resume Builder
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-slate-600">
-            The visual system behind cv.zolanvari.com — colours, the shimmer
+            The visual system behind cv.zolanvari.com - colours, the shimmer
             wordmark, type, and how to rebuild it. Tap any swatch or code block
             to copy.
           </p>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="mt-5 inline-block text-sm font-medium text-indigo-600 hover:underline"
           >
             ← Back to the builder
-          </a>
+          </Link>
         </header>
 
         <div className="mt-12 space-y-6">
@@ -257,7 +259,7 @@ export default function Logo() {
           <Section id="background" eyebrow="02" title="Background gradient">
             <p className="mb-4 text-sm text-slate-600">
               A 135° diagonal wash across four pale stops. Used full-bleed on
-              every page — this one included.
+              every page - this one included.
             </p>
             <div
               className="flex h-40 items-end rounded-xl border border-slate-200 p-4 shadow-inner"
@@ -326,7 +328,7 @@ export default function Logo() {
           {/* Secondary gradient */}
           <Section id="secondary" eyebrow="05" title="Secondary surfaces">
             <p className="mb-4 text-sm text-slate-600">
-              Modals and dropzones use a quieter gradient — a soft slate-to-indigo
+              Modals and dropzones use a quieter gradient - a soft slate-to-indigo
               wash that recedes behind content.
             </p>
             <div
@@ -350,7 +352,7 @@ export default function Logo() {
               <li>
                 <strong className="text-slate-900">2. Add the wordmark CSS.</strong>{" "}
                 Paste the <code className="font-mono">.text-gradient-brand</code>{" "}
-                block (section 03) into your global stylesheet — class, media
+                block (section 03) into your global stylesheet - class, media
                 query, and keyframes together.
               </li>
               <li>
@@ -368,7 +370,7 @@ export default function Logo() {
               <li>
                 <strong className="text-slate-900">5. Keep the motion guard.</strong>{" "}
                 Always leave the shimmer inside the{" "}
-                <code className="font-mono">prefers-reduced-motion</code> query —
+                <code className="font-mono">prefers-reduced-motion</code> query -
                 never animate it unconditionally.
               </li>
             </ol>
@@ -376,9 +378,9 @@ export default function Logo() {
         </div>
 
         <footer className="mt-12 text-center text-xs text-slate-500">
-          <a href="/" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/" className="font-medium text-indigo-600 hover:underline">
             cv.zolanvari.com
-          </a>{" "}
+          </Link>{" "}
           · Brand &amp; Identity
         </footer>
       </div>

@@ -8,7 +8,7 @@ existing row instead of duplicating it. No résumé body, phone or address is
 ever written here.
 
 If `store_encryption_key` is unset the store is disabled and `record_consent`
-is a no-op — the app still runs, it just persists nothing.
+is a no-op - the app still runs, it just persists nothing.
 """
 
 import hashlib
@@ -71,7 +71,7 @@ def _ensure_schema() -> None:
         conn.commit()
     finally:
         conn.close()
-    # Restrict the DB file — it holds (encrypted) personal data.
+    # Restrict the DB file - it holds (encrypted) personal data.
     try:
         os.chmod(settings.store_db_path, 0o600)
     except OSError:

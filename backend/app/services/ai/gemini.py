@@ -64,6 +64,7 @@ _RESUME_SCHEMA = {
                 "linkedin": {"type": "STRING"},
                 "github": {"type": "STRING"},
                 "website": {"type": "STRING"},
+                "portfolio": {"type": "STRING"},
                 "address": {"type": "STRING"},
             },
             "required": ["firstname", "lastname"],
@@ -108,6 +109,17 @@ _RESUME_SCHEMA = {
                 "required": ["category", "items"],
             },
         },
+        "sections": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "title": {"type": "STRING"},
+                    "bullets": _string_array(),
+                },
+                "required": ["title", "bullets"],
+            },
+        },
     },
     "required": ["contact"],
 }
@@ -121,8 +133,21 @@ _PARSE_SYSTEM_INSTRUCTION = (
     "- Split skill mentions into groups by category when the input does. Otherwise put "
     "everything under a single 'Skills' category.\n"
     "- For linkedin/github fields, capture only the username, not the full URL.\n"
-    "- For website, capture the full URL.\n"
-    "- Bullets should be the existing bullet/sentence as written; do not paraphrase."
+    "- For website, capture the main personal site URL; if a separate portfolio / project "
+    "site URL is present, put it in portfolio.\n"
+    "- Bullets should be the existing bullet/sentence as written; do not paraphrase.\n"
+    "- Capture EVERY remaining résumé section that does not fit contact / summary / "
+    "experience / education / skills as an entry in the 'sections' array. This includes "
+    "(but is not limited to): Awards, Honors, Certifications, Licenses, Languages "
+    "(spoken/written, e.g. English, Persian), Projects, Publications, Patents, "
+    "Presentations, Talks, Conferences, Volunteering, Community, Leadership, Interests, "
+    "Hobbies, Memberships, Affiliations, Professional Development, Courses, Trainings, "
+    "References. Use the section's heading from the résumé as 'title' (keep the original "
+    "wording and casing) and put each line/entry under it as a string in 'bullets' "
+    "verbatim. Never drop a section just because it is short or unusual; if in doubt, "
+    "include it as a custom section rather than discarding it.\n"
+    "- Do NOT duplicate content: items already captured under experience, education, or "
+    "skills should not also appear in sections."
 )
 
 
@@ -191,6 +216,21 @@ class GeminiProvider(AIProvider):
                 for b in (entry.get("bullets") or [])
                 if isinstance(b, str) and b.strip()
             ]
+        # Custom sections (awards, languages, certifications, projects, …):
+        # drop empty ones and attach bullet IDs so the editor and /api/polish
+        # can address individual bullets.
+        cleaned_sections = []
+        for entry in data.get("sections", []) or []:
+            title = (entry.get("title") or "").strip()
+            bullets = [
+                {"id": _new_bullet_id(), "text": b}
+                for b in (entry.get("bullets") or [])
+                if isinstance(b, str) and b.strip()
+            ]
+            if not title and not bullets:
+                continue
+            cleaned_sections.append({"title": title, "bullets": bullets})
+        data["sections"] = cleaned_sections
         if "contact" not in data:
             data["contact"] = Contact(firstname="", lastname="").model_dump()
         return ResumeData(**data)

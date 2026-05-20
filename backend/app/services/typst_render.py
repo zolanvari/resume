@@ -17,7 +17,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from app.config import settings
-from app.schemas import ResumeData, Theme
+from app.schemas import LayoutSettings, ResumeData, Theme
 from app.services.typst_emit import emit_typst
 
 logger = logging.getLogger(__name__)
@@ -33,11 +33,15 @@ class TypstCompileError(RuntimeError):
     """Raised when the typst CLI fails to compile a resume."""
 
 
-def render_pdf(resume: ResumeData, theme: Theme) -> bytes:
+def render_pdf(
+    resume: ResumeData, theme: Theme, layout: LayoutSettings | None = None
+) -> bytes:
     start = time.perf_counter()
     with TemporaryDirectory(prefix="cv-render-") as td_str:
         td = Path(td_str)
-        (td / "main.typ").write_text(emit_typst(resume, theme), encoding="utf-8")
+        (td / "main.typ").write_text(
+            emit_typst(resume, theme, layout), encoding="utf-8"
+        )
         shutil.copy(TEMPLATE_FILE, td / "resume.typ")
         shutil.copy(TEMPLATE_ASSET, td / "graphite-paper.jpg")
 
@@ -71,7 +75,7 @@ def render_pdf(resume: ResumeData, theme: Theme) -> bytes:
 
 
 def render_svg(resume: ResumeData, theme: Theme) -> list[str]:
-    """Compile to one SVG per page. Vector output — sharp at any zoom."""
+    """Compile to one SVG per page. Vector output - sharp at any zoom."""
     start = time.perf_counter()
     with TemporaryDirectory(prefix="cv-render-svg-") as td_str:
         td = Path(td_str)

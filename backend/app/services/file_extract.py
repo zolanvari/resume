@@ -23,7 +23,7 @@ class UnsupportedFileType(Exception):
 
 
 def _extract_docx(data: bytes) -> str:
-    """Modern Word (.docx) via python-docx — paragraphs and table cells."""
+    """Modern Word (.docx) via python-docx - paragraphs and table cells."""
     doc = Document(io.BytesIO(data))
     parts: list[str] = [p.text for p in doc.paragraphs if p.text.strip()]
     for table in doc.tables:

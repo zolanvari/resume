@@ -2,11 +2,11 @@ import { useRef, useState } from "react";
 
 import { parseResume } from "../api";
 import type { ResumeData } from "../types";
+import BackToHome from "./BackToHome";
 import TurnstileWidget from "./TurnstileWidget";
 
 interface Props {
   onParsed: (resume: ResumeData) => void;
-  onCancel: () => void;
   turnstileSiteKey?: string;
 }
 
@@ -14,7 +14,7 @@ type Mode = "upload" | "paste";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }: Props) {
+export default function UploadDropzone({ onParsed, turnstileSiteKey }: Props) {
   const [mode, setMode] = useState<Mode>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
@@ -61,16 +61,17 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-indigo-50">
-      <section className="max-w-2xl w-full">
-        <button
-          onClick={onCancel}
-          className="text-sm text-slate-500 hover:text-slate-700 mb-4"
-        >
-          ← Back
-        </button>
+    <main
+      className="min-h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #FFFBEB 0%, #FFE4E6 33%, #FAE8FF 66%, #DBEAFE 100%)",
+      }}
+    >
+      <section className="max-w-2xl mx-auto px-6 py-12">
+        <BackToHome label="Back to Resume Builder" />
 
-        <div className="rounded-2xl bg-white border border-slate-200 shadow-sm p-6 space-y-5">
+        <div className="mt-4 rounded-2xl bg-white border border-slate-200 shadow-sm p-6 sm:p-7 space-y-5">
           <header className="space-y-1">
             <h2 className="text-xl font-semibold text-slate-900">Upload your résumé</h2>
             <p className="text-sm text-slate-600">
@@ -122,7 +123,7 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
                     Drop your résumé here, or click to choose
                   </p>
                   <p className="text-xs text-slate-500">
-                    PDF, Word, or .txt — up to 5 MB
+                    PDF, Word, or .txt - up to 5 MB
                   </p>
                 </div>
               )}
@@ -162,7 +163,7 @@ export default function UploadDropzone({ onParsed, onCancel, turnstileSiteKey }:
 
           <div className="flex justify-between items-center pt-1">
             <p className="text-xs text-slate-500">
-              Processed transiently — nothing is stored unless you consent at download.
+              Processed transiently - nothing is stored unless you consent at download.
             </p>
             <button
               onClick={submit}

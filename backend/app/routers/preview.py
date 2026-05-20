@@ -1,4 +1,4 @@
-"""Theme preview endpoint — returns vector SVG pages for the sample resume.
+"""Theme preview endpoint - returns vector SVG pages for the sample resume.
 
 Used by the frontend ThemePicker to show a sharp, zoomable preview of each
 template instead of a static PNG thumbnail. Output is cached per theme since

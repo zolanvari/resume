@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 
 import { fetchPreviewSvg } from "../api";
+import { back, navigate, useSearchParam, withParam } from "../router";
 import { THEMES, type Theme } from "../types";
 
 interface Props {
@@ -34,7 +35,7 @@ function loadPreview(slug: Theme): Promise<string[]> {
 
 // Each preview page is a ~0.5-0.8 MB typst SVG with ~250 id-bearing nodes.
 // Injecting them inline (dangerouslySetInnerHTML) kept thousands of live vector
-// nodes in the DOM with cross-theme id collisions — heavy enough to crash the
+// nodes in the DOM with cross-theme id collisions - heavy enough to crash the
 // renderer when the full-size modal stacked more on top. Instead we wrap each
 // SVG in a Blob and render it through <img>: the browser rasterises it once,
 // the markup is sandboxed (no id leakage, no script), and the DOM holds a
@@ -102,7 +103,14 @@ export default function ThemePicker({ value, onChange }: Props) {
     THEMES.findIndex((t) => t.slug === value),
   );
   const selected = THEMES[selectedIdx];
-  const [previewSlug, setPreviewSlug] = useState<Theme | null>(null);
+
+  // The full-size preview is addressable as ?preview=<slug>, so the browser's
+  // Back button - like Esc and the × button - dismisses it.
+  const previewParam = useSearchParam("preview");
+  const previewSlug: Theme | null =
+    previewParam && THEMES.some((t) => t.slug === previewParam)
+      ? (previewParam as Theme)
+      : null;
 
   // Warm the cache for every theme on first paint so swapping tiles is
   // instant. Errors are swallowed; the tile will just show its label.
@@ -118,7 +126,7 @@ export default function ThemePicker({ value, onChange }: Props) {
         <div>
           <h3 className="text-base font-semibold text-slate-900">Template</h3>
           <p className="text-xs text-slate-500">
-            Pick a look. Click the selected tile again to preview full size.
+            Pick a look. Click any tile to preview full size.
           </p>
         </div>
         <span className="text-xs font-medium text-indigo-700 bg-indigo-100 rounded-full px-3 py-1.5 whitespace-nowrap">
@@ -147,7 +155,10 @@ export default function ThemePicker({ value, onChange }: Props) {
                   // a fanned stack rather than separated cards. ~18% of tile width.
                   marginLeft: i === 0 ? 0 : "-20px",
                 }}
-                onClick={() => (isSelected ? setPreviewSlug(t.slug) : onChange(t.slug))}
+                onClick={() => {
+                  if (!isSelected) onChange(t.slug);
+                  navigate(withParam("preview", t.slug));
+                }}
               />
             );
           })}
@@ -166,8 +177,10 @@ export default function ThemePicker({ value, onChange }: Props) {
       {previewSlug && (
         <ThemePreviewModal
           slug={previewSlug}
-          onClose={() => setPreviewSlug(null)}
-          onNavigate={(slug) => setPreviewSlug(slug)}
+          onClose={back}
+          onNavigate={(slug) =>
+            navigate(withParam("preview", slug), { replace: true })
+          }
         />
       )}
     </div>
@@ -188,7 +201,7 @@ function ThumbnailTile({ slug, label, isSelected, style, onClick }: TileProps) {
     <button
       type="button"
       onClick={onClick}
-      title={isSelected ? `${label}. Click to preview` : `${label}. Click to select`}
+      title={`${label}. Click to preview`}
       style={style}
       className={[
         "relative flex-1 min-w-0 max-w-[112px] aspect-[1/1.414] rounded-lg overflow-hidden border-2 shadow-md transition-transform duration-200 ease-out bg-white cursor-pointer select-none",

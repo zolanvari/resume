@@ -23,7 +23,7 @@ class Contact(BaseModel):
     linkedin: str | None = None  # username only (no URL prefix)
     github: str | None = None  # username only
     website: str | None = None  # full URL
-    portfolio: str | None = None  # full URL — portfolio / personal project site
+    portfolio: str | None = None  # full URL - portfolio / personal project site
     address: str | None = None
 
 
@@ -36,7 +36,7 @@ class ExperienceEntry(BaseModel):
     title: str  # job title
     company: str
     location: str = ""
-    date: str = ""  # free-form: "Jun 2023 — Present"
+    date: str = ""  # free-form: "Jun 2023 - Present"
     bullets: list[Bullet] = Field(default_factory=list)
 
 
@@ -53,17 +53,43 @@ class SkillGroup(BaseModel):
     items: list[str]
 
 
+class CustomSection(BaseModel):
+    """User-defined section (e.g. Certifications, Projects, Languages)."""
+
+    title: str
+    bullets: list[Bullet] = Field(default_factory=list)
+
+
 class ResumeData(BaseModel):
     contact: Contact
     summary: str | None = None
     experience: list[ExperienceEntry] = Field(default_factory=list)
     education: list[EducationEntry] = Field(default_factory=list)
     skills: list[SkillGroup] = Field(default_factory=list)
+    sections: list[CustomSection] = Field(default_factory=list)
+
+
+class LayoutSettings(BaseModel):
+    """User-tunable Typst layout knobs. Defaults match the resume.typ template."""
+
+    font_size: float = Field(default=10.0, ge=8.0, le=14.0)
+    line_spacing: float = Field(default=0.8, ge=0.4, le=1.5)
+    body_line_spacing: float = Field(default=0.55, ge=0.3, le=1.5)
+    section_spacing: float = Field(default=23.0, ge=4.0, le=24.0)
+    margin_x: float = Field(default=1.5, ge=0.5, le=3.0)
+    header_space: float = Field(default=1.7, ge=0.5, le=4.0)
+    footer_space: float = Field(default=1.5, ge=0.5, le=4.0)
+    bottom_margin: float = Field(default=0.0, ge=0.0, le=4.0)
+    title_item_spacing: float = Field(default=9.0, ge=0.0, le=20.0)
+    item_spacing: float = Field(default=9.0, ge=0.0, le=20.0)
+    text_align: Literal["left", "justify", "right"] = "left"
+    text_direction: Literal["auto", "ltr", "rtl"] = "auto"
 
 
 class RenderRequest(BaseModel):
     resume: ResumeData
     theme: Theme = Theme.aurora_violet
+    layout: LayoutSettings = Field(default_factory=LayoutSettings)
 
 
 class PolishedBullet(BaseModel):

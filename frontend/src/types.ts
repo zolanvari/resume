@@ -98,12 +98,19 @@ export interface SkillGroup {
   items: string[];
 }
 
+/** User-defined section appended after Experience/Education/Skills. */
+export interface CustomSection {
+  title: string;
+  bullets: Bullet[];
+}
+
 export interface ResumeData {
   contact: Contact;
   summary?: string | null;
   experience: ExperienceEntry[];
   education: EducationEntry[];
   skills: SkillGroup[];
+  sections: CustomSection[];
 }
 
 export interface PolishedBullet {
@@ -129,5 +136,37 @@ export function emptyResume(): ResumeData {
     experience: [],
     education: [],
     skills: [],
+    sections: [],
   };
 }
+
+export interface LayoutSettings {
+  font_size: number;
+  line_spacing: number;
+  body_line_spacing: number;
+  section_spacing: number;
+  margin_x: number;
+  header_space: number;
+  footer_space: number;
+  bottom_margin: number;
+  title_item_spacing: number;
+  item_spacing: number;
+  text_align: "left" | "justify" | "right";
+  text_direction: "auto" | "ltr" | "rtl";
+}
+
+/** Defaults - must match LayoutSettings in backend/app/schemas.py. */
+export const DEFAULT_LAYOUT: LayoutSettings = {
+  font_size: 10,
+  line_spacing: 0.8,
+  body_line_spacing: 0.55,
+  section_spacing: 23,
+  margin_x: 1.5,
+  header_space: 1.7,
+  footer_space: 1.5,
+  bottom_margin: 0,
+  title_item_spacing: 9,
+  item_spacing: 9,
+  text_align: "left",
+  text_direction: "auto",
+};

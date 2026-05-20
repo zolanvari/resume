@@ -44,7 +44,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <h1 className="text-lg font-semibold text-slate-900">Something went wrong</h1>
           <p className="text-sm text-slate-600">
             The page hit an unexpected error. Your résumé data is not stored, so reloading
-            is safe — please start again.
+            is safe - please start again.
           </p>
           <p className="text-xs text-slate-400 break-words">{this.state.message}</p>
           <button

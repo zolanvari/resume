@@ -1,6 +1,6 @@
-// resume.typ — multi-theme Typst résumé template
+// resume.typ - multi-theme Typst résumé template
 //
-// Forked from ptsouchlos/modern-cv@0.10.0 (MIT) — see LICENSE.
+// Forked from ptsouchlos/modern-cv@0.10.0 (MIT) - see LICENSE.
 // Original layout primitives and helpers (__justify_align,
 // __format_contact_items, justified-header, resume-entry, resume-item,
 // resume-skill-item) are preserved where possible, then extended with a
@@ -95,7 +95,7 @@
   str(author.at("firstname", default: "")) + " " + str(author.at("lastname", default: ""))
 }
 
-// Footer: date — Name · Résumé — page n. Fill pulls from `cv-muted-fill`
+// Footer: date - Name · Résumé - page n. Fill pulls from `cv-muted-fill`
 // state so dark themes (midnight-prism) get a legible muted tone instead
 // of the hardcoded slate.
 #let __resume_footer(author, date, use-smallcaps: true) = context {
@@ -232,7 +232,7 @@
 // ─── Theme bundles ───────
 //
 // Each theme is a dict of presentation tokens. Switching a resume to a
-// different look is `resume.with(theme: "<slug>")` — no template fork. The
+// different look is `resume.with(theme: "<slug>")` - no template fork. The
 // theme overrides accent-color, background, fonts, and heading/name show
 // rules. Layout knobs (margins, spacings, font-size) are still independent
 // and apply on top of any theme.
@@ -300,7 +300,7 @@
     icon-color: "accent",
   ),
   "midnight-prism": (
-    // CRT-phosphor / Matrix-movie terminal. Whole document is mono — body
+    // CRT-phosphor / Matrix-movie terminal. Whole document is mono - body
     // and headers both pull Liberation Mono so it reads as a DOS / shell
     // session. Accent = bright phosphor green; ink is a dimmer green so
     // body text reads comfortably against the near-black void.
@@ -373,7 +373,7 @@
     // for a tighter minimal feel.
     smallcaps: false,
     // Mint runs on a 2-weight palette (regular + semibold). Without this
-    // override h2 falls back to "bold" — a third weight that breaks the
+    // override h2 falls back to "bold" - a third weight that breaks the
     // restrained, minimal rhythm.
     entry-title-weight: "semibold",
   ),
@@ -399,7 +399,7 @@
 )
 
 // Resolve a heading-color token ("accent" | "ink" | "muted") against the
-// theme dict — used in the h1 show rule.
+// theme dict - used in the h1 show rule.
 #let __theme-color(theme, key) = {
   let v = theme.at(key, default: "accent")
   if v == "accent" { theme.accent }
@@ -499,7 +499,7 @@
       #place(dx: 27.1pt, dy: 29.1pt, circle(radius: 0.20pt, fill: rgb("#6B7280")))
     ]
     // Base wash slightly darker on top-left, lighter centre, mild vignette
-    // feel — Typst's gradient.radial gives the old-paper bow without
+    // feel - Typst's gradient.radial gives the old-paper bow without
     // touching readability of the body text.
     place(top + left, rect(width: 100%, height: 100%,
       fill: gradient.radial(
@@ -527,7 +527,7 @@
     // Subtle vertical gradient bottom→top to ease the pure-black void.
     place(top + left, rect(width: 100%, height: 100%,
       fill: gradient.linear(rgb("#03080500"), rgb("#0A1F0F40"), angle: 0deg)))
-    // Phosphor hot-spot — sits behind the header so the name reads like a
+    // Phosphor hot-spot - sits behind the header so the name reads like a
     // glowing CRT element.
     place(top + left, rect(width: 100%, height: 100%,
       fill: gradient.radial(
@@ -556,7 +556,7 @@
 
 // __name-block(author, theme, header-font): renders the centered name in
 // the style dictated by the theme. Each variant exists because the way a
-// name is set is a primary signature of the design — splitting it out
+// name is set is a primary signature of the design - splitting it out
 // keeps the variants legible vs. branching inline.
 #let __name-block(author, theme, header-font) = {
   let first = author.at("firstname", default: "")
@@ -575,7 +575,7 @@
           smallcaps(upper(first + " " + last))
         } else if style == "gillette-bold" {
           // Heavy italic display weight, very tight tracking. The point of
-          // reference is the Gillette logotype — bold, italic, no-frills
+          // reference is the Gillette logotype - bold, italic, no-frills
           // impact. Reads loud on the vintage-grain background.
           set text(size: 38pt, font: header-font, tracking: -0.03em, weight: "black", style: "italic", fill: theme.ink)
           first + " " + last
@@ -591,7 +591,7 @@
         } else if style == "matrix-cursor" {
           // CRT terminal greeting: phosphor-green monospace, with a trailing
           // underscore cursor. Reads as `alex morgan_` on a black void.
-          // The `[\_]` escape is needed — bare `[_]` is parsed as the start
+          // The `[\_]` escape is needed - bare `[_]` is parsed as the start
           // of Typst emphasis syntax and errors with "unclosed delimiter".
           set text(size: 30pt, font: header-font, weight: "bold", fill: theme.accent, tracking: 0.02em)
           first
@@ -620,7 +620,7 @@
 
 // __heading-block(it, theme, header-font, section-spacing, title-item-spacing):
 // returns the section heading (h1) block. The visual signature of each
-// theme lives here — hairline, left accent bar, diamond ornament, bracket
+// theme lives here - hairline, left accent bar, diamond ornament, bracket
 // frame, underline, etc. Show rules elsewhere call this.
 #let __heading-block(it, theme, header-font, section-spacing, title-item-spacing) = {
   let style    = theme.at("heading-style", default: "hairline")
@@ -657,7 +657,7 @@
     #if style == "hairline" [
       #label#h(8pt)#box(width: 1fr, line(length: 100%, stroke: rule-w + rule-c))
     ] else if style == "prompt" [
-      // `> heading_text` terminal-prompt look — chevron prefix in accent,
+      // `> heading_text` terminal-prompt look - chevron prefix in accent,
       // rule running to the edge. Reads as a shell command line.
       #text(fill: theme.accent, font: header-font, weight: weight, size: 16pt)[> ]#label#h(8pt)#box(width: 1fr, line(length: 100%, stroke: rule-w + rule-c))
     ] else if style == "left-bar" [
@@ -703,28 +703,24 @@
   use-smallcaps: true,
   show-address-icon: true,
 
-  // Layout knobs (caller can override per render).
-  font-size: 10pt,
-  line-spacing: 0.8em,         // paragraph leading at the document level
-  body-line-spacing: 0.55em,   // leading inside resume-item bullet blocks
-  section-spacing: 23pt,
-  margin-x: 1.5cm,
-  header-space: 1.7cm,
-  footer-space: 1.5cm,
-  bottom-margin: 0cm,
-  title-item-spacing: 9pt,
-  item-spacing: 9pt,
-  // Body-text alignment: "left" | "justify" | "right". "justify" spreads
-  // text to both margins; "right" is mainly useful when forcing LTR for RTL
-  // content.
-  text-align: "left",
-  // Direction override: "auto" follows `language` (or sys.inputs language),
-  // otherwise force "ltr" / "rtl".
-  text-direction: "auto",
+  // Layout knobs (caller can override per render). `none` means "not set by
+  // the caller" - resolved below to a per-theme override or the hard default.
+  font-size: none,
+  line-spacing: none,
+  body-line-spacing: none,
+  section-spacing: none,
+  margin-x: none,
+  header-space: none,
+  footer-space: none,
+  bottom-margin: none,
+  title-item-spacing: none,
+  item-spacing: none,
+  text-align: none,
+  text-direction: none,
 
   gradient-background: true,
 
-  // Visual preset — picks a complete look (palette + background + fonts +
+  // Visual preset - picks a complete look (palette + background + fonts +
   // name/heading styles) from `cv-themes`. Pass `none` to keep the legacy
   // behavior driven by `accent-color` / `font` / `header-font` /
   // `gradient-background` args alone (back-compat for existing call sites
@@ -768,22 +764,35 @@
   font = resolved-theme.at("body-font", default: font)
   header-font = resolved-theme.at("header-font", default: header-font)
 
-  // Themes can override the explicit `use-smallcaps` arg — used by mint
+  // Themes can override the explicit `use-smallcaps` arg - used by mint
   // when the design calls for plain text everywhere (no smallcaps in
   // positions row / h3 subtitle / footer) for a quieter feel.
   if "smallcaps" in resolved-theme {
     use-smallcaps = resolved-theme.smallcaps
   }
 
-  // Per-theme layout nudges (ivory wants looser leading + bigger gaps for
-  // an elegant rhythm). Caller knobs still pass through unchanged unless
-  // a theme explicitly overrides them.
+  // Resolve each layout knob: an explicit caller value wins; otherwise a
+  // per-theme `layout-overrides` nudge applies; otherwise the hard default.
+  // (ivory uses overrides for a looser, more elegant rhythm.)
   let lo = resolved-theme.at("layout-overrides", default: (:))
-  if "line-spacing" in lo { line-spacing = lo.line-spacing }
-  if "body-line-spacing" in lo { body-line-spacing = lo.body-line-spacing }
-  if "item-spacing" in lo { item-spacing = lo.item-spacing }
-  if "title-item-spacing" in lo { title-item-spacing = lo.title-item-spacing }
-  if "section-spacing" in lo { section-spacing = lo.section-spacing }
+  let _ld = (
+    font-size: 10pt, line-spacing: 0.8em, body-line-spacing: 0.55em,
+    section-spacing: 23pt, margin-x: 1.5cm, header-space: 1.7cm,
+    footer-space: 1.5cm, bottom-margin: 0cm, title-item-spacing: 9pt,
+    item-spacing: 9pt, text-align: "left", text-direction: "auto",
+  )
+  font-size = if font-size != none { font-size } else { lo.at("font-size", default: _ld.font-size) }
+  line-spacing = if line-spacing != none { line-spacing } else { lo.at("line-spacing", default: _ld.line-spacing) }
+  body-line-spacing = if body-line-spacing != none { body-line-spacing } else { lo.at("body-line-spacing", default: _ld.body-line-spacing) }
+  section-spacing = if section-spacing != none { section-spacing } else { lo.at("section-spacing", default: _ld.section-spacing) }
+  margin-x = if margin-x != none { margin-x } else { lo.at("margin-x", default: _ld.margin-x) }
+  header-space = if header-space != none { header-space } else { lo.at("header-space", default: _ld.header-space) }
+  footer-space = if footer-space != none { footer-space } else { lo.at("footer-space", default: _ld.footer-space) }
+  bottom-margin = if bottom-margin != none { bottom-margin } else { lo.at("bottom-margin", default: _ld.bottom-margin) }
+  title-item-spacing = if title-item-spacing != none { title-item-spacing } else { lo.at("title-item-spacing", default: _ld.title-item-spacing) }
+  item-spacing = if item-spacing != none { item-spacing } else { lo.at("item-spacing", default: _ld.item-spacing) }
+  text-align = if text-align != none { text-align } else { lo.at("text-align", default: _ld.text-align) }
+  text-direction = if text-direction != none { text-direction } else { lo.at("text-direction", default: _ld.text-direction) }
 
   // Backend compile pipeline auto-detects Arabic/Farsi content and passes
   // `--input language=ar|fa`. When present it overrides the call-site
@@ -947,7 +956,7 @@
 
   // Apply explicit side alignment when requested; otherwise keep default
   // (start-edge), which composes correctly with par.justify for "justify".
-  // NOTE: `set align(left)` does NOT visibly move RTL paragraphs — they fill
+  // NOTE: `set align(left)` does NOT visibly move RTL paragraphs - they fill
   // the column width and text follows `dir`. The `align(side, body)` wrapper
   // is what actually shifts RTL content to the left/right edge.
   if text-align == "left" {

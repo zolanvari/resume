@@ -26,7 +26,7 @@ function triggerDownload(url: string, filename: string) {
 /**
  * Download dialog with an opt-in (GDPR) consent step. The PDF download always
  * happens locally; ticking the box additionally stores name/email for project
- * news and sends the owner a copy. Consent is opt-in — the box starts unticked.
+ * news and sends the owner a copy. Consent is opt-in - the box starts unticked.
  */
 export default function ConsentModal({
   url,
@@ -109,10 +109,10 @@ export default function ConsentModal({
             &amp; email so cv.zolanvari.com can send occasional project news. I can
             unsubscribe anytime by emailing{" "}
             <a
-              href="mailto:iman@zolanvari.com"
+              href="mailto:info@zolanvari.com"
               className="font-medium text-indigo-600 hover:underline"
             >
-              iman@zolanvari.com
+              info@zolanvari.com
             </a>
             . See the{" "}
             <a

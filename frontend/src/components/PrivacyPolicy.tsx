@@ -1,10 +1,10 @@
 import { clearStoredConsent, getStoredConsent } from "../analytics";
+import { Link } from "../router";
 
 /**
- * Static privacy policy, served at /privacy. The app has no router — nginx's
- * SPA fallback serves index.html for the path and App renders this when
- * window.location.pathname is "/privacy". Links use plain <a> (full reloads),
- * so no router dependency is needed.
+ * Static privacy policy, served at /privacy. App routes here client-side, so
+ * "Back to Resume Builder" returns to the builder instantly with any
+ * in-progress résumé still intact.
  */
 export default function PrivacyPolicy() {
   const consent = getStoredConsent();
@@ -23,9 +23,9 @@ export default function PrivacyPolicy() {
       }}
     >
       <article className="max-w-2xl mx-auto px-6 py-12">
-        <a href="/" className="text-sm text-slate-500 hover:text-slate-700">
+        <Link to="/" className="text-sm text-slate-500 hover:text-slate-700">
           ← Back to Resume Builder
-        </a>
+        </Link>
 
         <div className="mt-4 rounded-2xl bg-white border border-slate-200 shadow-sm p-7 sm:p-9 space-y-6">
           <header className="space-y-1">
@@ -41,8 +41,8 @@ export default function PrivacyPolicy() {
           </p>
 
           <Section title="1. What we store">
-            By default we store nothing. Your résumé — every field, including phone,
-            email and address — lives only in your browser while you use the page. The
+            By default we store nothing. Your résumé - every field, including phone,
+            email and address - lives only in your browser while you use the page. The
             one exception is the download step: if you tick the optional consent box
             there, we store your name, email and résumé headline (job title) so we can
             send you occasional project news. Nothing else is stored, ever.
@@ -65,11 +65,11 @@ export default function PrivacyPolicy() {
             Downloading your PDF never requires consent. If you choose to opt in, the
             stored name, email and headline are encrypted at rest, and a copy of your
             generated CV is sent privately to the site owner so they can follow up. You
-            can withdraw at any time — see section 6.
+            can withdraw at any time - see section 6.
           </Section>
 
           <Section title="5. Analytics & cookies">
-            We use Google Analytics to understand how the site is used — but only if you
+            We use Google Analytics to understand how the site is used - but only if you
             accept analytics cookies in the consent banner. Until you accept, no
             analytics script, cookie or request to Google is loaded. If you decline, the
             site works exactly the same. Google Analytics never receives your résumé
@@ -103,10 +103,10 @@ export default function PrivacyPolicy() {
           <Section title="7. Your rights & removing your data">
             To access, correct or delete any data you consented to store, email{" "}
             <a
-              href="mailto:iman@zolanvari.com"
+              href="mailto:info@zolanvari.com"
               className="font-medium text-indigo-700 hover:underline"
             >
-              iman@zolanvari.com
+              info@zolanvari.com
             </a>
             . We will remove it promptly. You can unsubscribe from project news the same
             way.
@@ -115,10 +115,10 @@ export default function PrivacyPolicy() {
           <p className="text-sm text-slate-700 pt-2 border-t border-slate-100">
             Questions? Contact{" "}
             <a
-              href="mailto:iman@zolanvari.com"
+              href="mailto:info@zolanvari.com"
               className="font-medium text-indigo-700 hover:underline"
             >
-              iman@zolanvari.com
+              info@zolanvari.com
             </a>
             .
           </p>

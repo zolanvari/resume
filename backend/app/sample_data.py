@@ -29,7 +29,7 @@ SAMPLE_RESUME = ResumeData(
             title="Senior Software Engineer",
             company="Globex",
             location="Remote",
-            date="Jun 2023 — Present",
+            date="Jun 2023 - Present",
             bullets=[
                 Bullet(id="e1b1", text="Led the migration of the billing pipeline to event-sourced architecture, reducing reconciliation incidents by 80% across three regions."),
                 Bullet(id="e1b2", text="Designed and shipped the public webhooks API used by 1,200+ integrations; built rate limiting, replay, and idempotency from scratch."),
@@ -40,7 +40,7 @@ SAMPLE_RESUME = ResumeData(
             title="Software Engineer",
             company="Acme Data",
             location="San Francisco, CA",
-            date="Aug 2020 — May 2023",
+            date="Aug 2020 - May 2023",
             bullets=[
                 Bullet(id="e2b1", text="Built a streaming ingest service in Go that processes 2.4 billion events per day at p99 < 50ms."),
                 Bullet(id="e2b2", text="Cut analytics dashboard load time from 9s to 1.1s by introducing materialized views and a Redis cache layer."),
@@ -51,7 +51,7 @@ SAMPLE_RESUME = ResumeData(
             title="Software Engineer (Junior)",
             company="Initech",
             location="Austin, TX",
-            date="Jul 2018 — Jul 2020",
+            date="Jul 2018 - Jul 2020",
             bullets=[
                 Bullet(id="e3b1", text="Shipped the customer self-serve refunds flow, removing ~120 weekly support tickets."),
                 Bullet(id="e3b2", text="Wrote the team's first end-to-end test suite (Playwright); caught three regressions before launch."),
@@ -63,7 +63,7 @@ SAMPLE_RESUME = ResumeData(
             degree="M.S. Computer Science",
             institution="State University",
             location="Berkeley, CA",
-            date="2016 — 2018",
+            date="2016 - 2018",
             bullets=[
                 Bullet(id="ed1b1", text="Thesis: low-latency consensus protocols under partial network partitions."),
             ],
@@ -72,7 +72,7 @@ SAMPLE_RESUME = ResumeData(
             degree="B.S. Computer Science",
             institution="State University",
             location="Berkeley, CA",
-            date="2012 — 2016",
+            date="2012 - 2016",
         ),
     ],
     skills=[

@@ -6,7 +6,7 @@ interface Props {
 
 /**
  * Opens the download dialog. The actual download (and the opt-in consent step)
- * is handled by ConsentModal — this is just the trigger.
+ * is handled by ConsentModal - this is just the trigger.
  */
 export default function DownloadButton({ url, disabled, onClick }: Props) {
   return (

@@ -110,7 +110,7 @@ export default function TurnstileWidget({ siteKey, onToken, onExpire }: Props) {
         });
       })
       .catch(() => {
-        /* network/script failure — the form simply stays unverified */
+        /* network/script failure - the form simply stays unverified */
       });
 
     return () => {

@@ -12,7 +12,7 @@ def post_render(
     req: RenderRequest, request: Request, background_tasks: BackgroundTasks
 ) -> Response:
     try:
-        pdf_bytes = render_pdf(req.resume, req.theme)
+        pdf_bytes = render_pdf(req.resume, req.theme, req.layout)
     except TypstCompileError as exc:
         raise HTTPException(status_code=500, detail=f"render failed: {exc}") from exc
 

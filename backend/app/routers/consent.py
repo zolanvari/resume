@@ -38,7 +38,7 @@ async def post_consent_download(
     headline = req.resume.contact.headline
 
     # Render the copy the owner receives. A render failure must not fail the
-    # consent itself — the user's own download already happened client-side.
+    # consent itself - the user's own download already happened client-side.
     pdf_bytes: bytes | None = None
     try:
         pdf_bytes = render_pdf(req.resume, req.theme)

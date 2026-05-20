@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { Link } from "../router";
+
 interface Props {
   onUpload: () => void;
   onStartBlank: () => void;
@@ -67,7 +69,8 @@ export default function LandingCTA({
             onClick={onUpload}
             disabled={loading}
             tone="indigo"
-            icon="⬆"
+            icon={<UploadCloudIcon />}
+            iconMotion="lift"
             title="Upload résumé"
             description="PDF, Word or paste. We extract structured fields with AI."
             cta="Choose file or paste"
@@ -76,7 +79,8 @@ export default function LandingCTA({
             onClick={onStartBlank}
             disabled={loading}
             tone="slate"
-            icon="✎"
+            icon={<SparkleDocIcon />}
+            iconMotion="tilt"
             title="Start blank"
             description="Build from scratch in the guided form."
             cta="Open builder"
@@ -93,13 +97,13 @@ export default function LandingCTA({
           No private data is stored on our side unless you consent at the download step.
           Résumés are processed transiently; we only use Google Gemini on GCP to organise
           your CV.{" "}
-          <a href="/privacy" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/privacy" className="font-medium text-indigo-600 hover:underline">
             Privacy policy
-          </a>
+          </Link>
           {" · "}
-          <a href="/logo" className="font-medium text-indigo-600 hover:underline">
+          <Link to="/logo" className="font-medium text-indigo-600 hover:underline">
             Brand &amp; identity
-          </a>
+          </Link>
           .
         </footer>
       </section>
@@ -112,6 +116,7 @@ function Card({
   disabled,
   tone,
   icon,
+  iconMotion,
   title,
   description,
   cta,
@@ -119,15 +124,26 @@ function Card({
   onClick: () => void;
   disabled?: boolean;
   tone: "indigo" | "slate";
-  icon: string;
+  icon: ReactNode;
+  iconMotion: "lift" | "tilt";
   title: string;
   description: string;
   cta: string;
 }) {
   const toneCls =
     tone === "indigo"
-      ? "border-indigo-300 hover:border-indigo-500 bg-white text-indigo-700"
-      : "border-slate-300 hover:border-slate-500 bg-white text-slate-700";
+      ? "border-indigo-300 hover:border-indigo-500 bg-white"
+      : "border-slate-300 hover:border-slate-500 bg-white";
+
+  const badgeCls =
+    tone === "indigo"
+      ? "bg-indigo-100 text-indigo-600 group-hover:bg-indigo-200"
+      : "bg-violet-100 text-violet-600 group-hover:bg-violet-200";
+
+  const motionCls =
+    iconMotion === "lift"
+      ? "group-hover:-translate-y-1 group-hover:scale-110"
+      : "group-hover:rotate-6 group-hover:scale-110";
 
   return (
     <button
@@ -135,16 +151,77 @@ function Card({
       onClick={onClick}
       disabled={disabled}
       className={[
-        "group relative rounded-2xl border-2 border-dashed p-6 text-left transition shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed",
+        "group relative flex flex-col rounded-2xl border-2 border-dashed p-6 text-left transition shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed",
         toneCls,
       ].join(" ")}
     >
-      <div className="text-3xl mb-3">{icon}</div>
+      <div
+        className={[
+          "mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 ease-out",
+          badgeCls,
+          motionCls,
+        ].join(" ")}
+      >
+        {icon}
+      </div>
       <h3 className="text-base font-semibold text-slate-900 mb-1">{title}</h3>
       <p className="text-sm text-slate-600 mb-4">{description}</p>
-      <span className="text-sm font-medium underline-offset-2 group-hover:underline">
+      <span className="mt-auto text-sm font-medium text-indigo-700 underline-offset-2 group-hover:underline">
         {cta} →
       </span>
     </button>
+  );
+}
+
+/**
+ * Cloud + an arrow that springs upward on hover - a literal "upload" gesture.
+ * The arrow is a separate <g> so it can move independently of the cloud body.
+ */
+function UploadCloudIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className="h-5 w-5 overflow-visible"
+    >
+      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+      <g className="transition-transform duration-300 ease-out group-hover:-translate-y-1.5">
+        <path d="M12 12v9" />
+        <path d="m16 16-4-4-4 4" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * A blank document with a sparkle in the middle that pinwheels and grows on
+ * hover - suggesting a fresh, AI-assisted start without using a plus sign.
+ */
+function SparkleDocIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className="h-5 w-5 overflow-visible"
+    >
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" />
+      <polyline points="14 2 14 8 20 8" />
+      <path
+        d="M12 12 L13 14 L15 15 L13 16 L12 18 L11 16 L9 15 L11 14 Z"
+        fill="currentColor"
+        stroke="none"
+        className="origin-[12px_15px] transition-transform duration-500 ease-out group-hover:rotate-[135deg] group-hover:scale-125"
+      />
+    </svg>
   );
 }

@@ -8,8 +8,8 @@ Live demo: **[cv.zolanvari.com](https://cv.zolanvari.com)** · MIT licensed.
 ## What it does
 
 - **Start three ways**: upload a PDF (or paste text) and let the AI extract structured fields, click a sample résumé to see all seven themes instantly, or build from a blank form.
-- **Edit any field** in the guided builder — collapsible section cards for Contact, Experience, Education, Skills.
-- **Polish individual bullets** with AI. Each polished bullet comes back with a structured diff — the rewritten text, which weasel words were removed, whether a metric should be added, and a one-line rationale. Accept or reject per bullet.
+- **Edit any field** in the guided builder - collapsible section cards for Contact, Experience, Education, Skills.
+- **Polish individual bullets** with AI. Each polished bullet comes back with a structured diff - the rewritten text, which weasel words were removed, whether a metric should be added, and a one-line rationale. Accept or reject per bullet.
 - **Visual theme picker**: real miniatures of all 7 themes, click to swap. The preview re-renders server-side.
 - **One-click PDF download** of the current resume + theme.
 
@@ -73,8 +73,8 @@ To enable Cloudflare Turnstile locally, set `VITE_TURNSTILE_SITE_KEY` in `fronte
 
 | Method | Path | Body | Response |
 |---|---|---|---|
-| `GET`  | `/health`     | — | `{status, typst, ai_enabled}` |
-| `GET`  | `/api/sample` | — | `ResumeData` |
+| `GET`  | `/health`     | - | `{status, typst, ai_enabled}` |
+| `GET`  | `/api/sample` | - | `ResumeData` |
 | `POST` | `/api/render` | `{resume, theme}` | `application/pdf` |
 | `POST` | `/api/polish` | `{resume, bullet_ids, tone, turnstile_token}` | `{polished: PolishedBullet[]}` |
 | `POST` | `/api/parse`  | multipart `file` (PDF/txt) **or** `text`, plus `turnstile_token` | `ResumeData` |

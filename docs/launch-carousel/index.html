@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cv.zolanvari.com - launch carousel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cream: #fbf1ea;
+        --ink: #1a1a1a;
+        --muted: #6e6a66;
+        --accent: #e0785c;
+        --slide-w: 1080px;
+        --slide-h: 1350px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+        background: #d9d4cd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      /* ── Slide shell ───────────────────────────────────────── */
+      .deck {
+        transform-origin: center center;
+      }
+
+      .slide {
+        width: var(--slide-w);
+        height: var(--slide-h);
+        background: linear-gradient(
+          135deg,
+          #fffbeb 0%,
+          #ffe4e6 33%,
+          #fae8ff 66%,
+          #dbeafe 100%
+        );
+        color: var(--ink);
+        padding: 100px 92px 84px;
+        display: none;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+      .slide.active {
+        display: flex;
+      }
+
+      .s-label {
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .s-headline {
+        margin-top: 30px;
+        font-size: 66px;
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .s-headline.sm {
+        font-size: 58px;
+      }
+      .hl {
+        color: var(--accent);
+      }
+
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      .s-body {
+        font-size: 25px;
+        line-height: 1.62;
+        color: var(--muted);
+        max-width: 820px;
+      }
+      .s-body strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .s-footer {
+        margin-top: 40px;
+        padding-top: 22px;
+        border-top: 1.5px solid rgba(26, 26, 26, 0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .swipe {
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: none;
+      }
+
+      /* ── Slide 4 - templates ───────────────────────────────── */
+      .templates {
+        margin-top: 38px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .t-row {
+        display: flex;
+        gap: 20px;
+      }
+      .t-card {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      .t-card img {
+        width: 100%;
+        height: 236px;
+        object-fit: cover;
+        object-position: top center;
+        border-radius: 8px;
+        border: 1px solid rgba(26, 26, 26, 0.12);
+        box-shadow: 0 10px 22px rgba(26, 26, 26, 0.12);
+        background: #fff;
+      }
+      .t-name {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--ink);
+      }
+      .t-name span {
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      /* ── Slide 5 - steps + CTA ─────────────────────────────── */
+      .steps {
+        margin-top: 38px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+      .step {
+        display: flex;
+        gap: 22px;
+        align-items: baseline;
+      }
+      .step-n {
+        font-size: 38px;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        flex: none;
+        width: 54px;
+      }
+      .step-t {
+        font-size: 25px;
+        line-height: 1.5;
+        color: var(--ink);
+      }
+      .step-t span {
+        color: var(--muted);
+      }
+
+      .cta {
+        margin-top: 36px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      .cta a {
+        text-decoration: none;
+        font-size: 19px;
+        font-weight: 600;
+        padding: 16px 26px;
+        border-radius: 999px;
+      }
+      .cta .primary {
+        background: var(--ink);
+        color: var(--cream);
+      }
+      .cta .ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1.5px solid rgba(26, 26, 26, 0.25);
+      }
+
+      /* ── On-screen controls ────────────────────────────────── */
+      .controls {
+        position: fixed;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 999px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        z-index: 50;
+        font-family: "Inter", sans-serif;
+      }
+      .controls button {
+        background: transparent;
+        border: 0;
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 15px;
+      }
+      .controls button:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .controls .count {
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        padding: 0 10px;
+        opacity: 0.9;
+      }
+      .controls .print {
+        background: var(--accent);
+        font-weight: 600;
+      }
+
+      /* ── Print → PDF (one slide per page) ──────────────────── */
+      @page {
+        size: 1080px 1350px;
+        margin: 0;
+      }
+      @media print {
+        body {
+          background: #fff;
+          display: block;
+        }
+        .controls {
+          display: none;
+        }
+        .deck {
+          transform: none !important;
+        }
+        .slide {
+          display: flex !important;
+          page-break-after: always;
+          break-after: page;
+        }
+        .slide:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="deck" id="deck">
+      <!-- ── Slide 1 - hook ─────────────────────────────────── -->
+      <section class="slide active">
+        <div class="s-label">Why we built it</div>
+        <h1 class="s-headline">
+          Layoffs are everywhere. Your résumé shouldn't cost you
+          <span class="hl">anything</span>.
+        </h1>
+        <div class="spacer"></div>
+        <p class="s-body">
+          So we built a résumé builder that's free, open source, and private -
+          and put it online for anyone who needs it right now. Here's the why.
+        </p>
+        <div class="s-footer">
+          <span>@zolanvari · cv.zolanvari.com</span>
+          <span class="swipe">Swipe →</span>
+        </div>
+      </section>
+
+      <!-- ── Slide 2 - the problem ──────────────────────────── -->
+      <section class="slide">
+        <div class="s-label">The problem</div>
+        <h1 class="s-headline sm">
+          Most résumé tools want your <span class="hl">money</span>, your
+          <span class="hl">email</span>, and your <span class="hl">data</span>.
+        </h1>
+        <div class="spacer"></div>
+        <p class="s-body">
+          “Sign up to continue.” “Upgrade to download.” Meanwhile your résumé -
+          full of personal details - sits on someone else's servers. When you're
+          job-hunting under pressure, that's the last thing you need.
+        </p>
+        <div class="s-footer">
+          <span>@zolanvari · cv.zolanvari.com</span>
+          <span>02 / 05</span>
+        </div>
+      </section>
+
+      <!-- ── Slide 3 - what it is ───────────────────────────── -->
+      <section class="slide">
+        <div class="s-label">The project · cv.zolanvari.com</div>
+        <h1 class="s-headline sm">
+          A résumé builder that's <span class="hl">free</span>,
+          <span class="hl">open source</span>, and stores
+          <span class="hl">nothing</span>.
+        </h1>
+        <div class="spacer"></div>
+        <p class="s-body">
+          Upload your old résumé as a <strong>PDF or Word</strong> file. AI reads
+          it and organises it into clean, structured fields - no account, no fee.
+          It's processed in the moment and discarded; nothing is kept unless you
+          explicitly opt in.
+        </p>
+        <div class="s-footer">
+          <span>@zolanvari · cv.zolanvari.com</span>
+          <span>03 / 05</span>
+        </div>
+      </section>
+
+      <!-- ── Slide 4 - templates ────────────────────────────── -->
+      <section class="slide">
+        <div class="s-label">Seven typeset templates</div>
+        <h1 class="s-headline sm">
+          Pick a look that gets you <span class="hl">read</span>.
+        </h1>
+        <div class="templates">
+          <div class="t-row">
+            <div class="t-card">
+              <img src="templates/aurora-violet.png" alt="Aurora Violet template" />
+              <div class="t-name">Aurora Violet <span>· modern</span></div>
+            </div>
+            <div class="t-card">
+              <img src="templates/graphite-mist.png" alt="Graphite Mist template" />
+              <div class="t-name">Graphite Mist <span>· editorial</span></div>
+            </div>
+            <div class="t-card">
+              <img src="templates/midnight-prism.png" alt="Midnight Prism template" />
+              <div class="t-name">Midnight Prism <span>· dark</span></div>
+            </div>
+            <div class="t-card">
+              <img src="templates/ember-glow.png" alt="Ember Glow template" />
+              <div class="t-name">Ember Glow <span>· bold</span></div>
+            </div>
+          </div>
+          <div class="t-row">
+            <div class="t-card">
+              <img src="templates/ivory-classique.png" alt="Ivory Classique template" />
+              <div class="t-name">Ivory Classique <span>· traditional</span></div>
+            </div>
+            <div class="t-card">
+              <img src="templates/mint-meridian.png" alt="Mint Meridian template" />
+              <div class="t-name">Mint Meridian <span>· fresh</span></div>
+            </div>
+            <div class="t-card">
+              <img src="templates/sunset-haze.png" alt="Sunset Haze template" />
+              <div class="t-name">Sunset Haze <span>· warm</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <p class="s-body">
+          Switch themes with one click and preview the result live before you
+          download. Every template is professionally typeset and recruiter-ready.
+        </p>
+        <div class="s-footer">
+          <span>@zolanvari · cv.zolanvari.com</span>
+          <span>04 / 05</span>
+        </div>
+      </section>
+
+      <!-- ── Slide 5 - how to use + CTA ─────────────────────── -->
+      <section class="slide">
+        <div class="s-label">How it works</div>
+        <h1 class="s-headline">Three steps. <span class="hl">Free</span>. Forever.</h1>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">
+              <strong>Upload</strong> your résumé (PDF or Word) - or start from a
+              blank form.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">
+              <strong>Edit</strong> your details and let AI polish your bullet
+              points into sharp, impact-driven lines.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">
+              <strong>Download</strong> a clean, recruiter-ready PDF - typeset and
+              ready to send.
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="cta">
+          <a class="primary" href="https://cv.zolanvari.com">Try it → cv.zolanvari.com</a>
+          <a class="ghost" href="https://github.com/zolanvari/resume">Star it on GitHub</a>
+        </div>
+        <div class="s-footer">
+          <span>@zolanvari · open source</span>
+          <span>05 / 05</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="controls">
+      <button id="prev" aria-label="Previous slide">‹</button>
+      <span class="count" id="count">1 / 5</span>
+      <button id="next" aria-label="Next slide">›</button>
+      <button class="print" id="print" title="Export a print-ready PDF">Save PDF</button>
+    </div>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const deck = document.getElementById("deck");
+      const count = document.getElementById("count");
+      let i = 0;
+
+      function show(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+        count.textContent = `${i + 1} / ${slides.length}`;
+      }
+
+      // Scale the 1080×1350 slide to fit the viewport for on-screen viewing.
+      function fit() {
+        const pad = 120;
+        const scale = Math.min(
+          (window.innerWidth - pad) / 1080,
+          (window.innerHeight - pad) / 1350,
+          1,
+        );
+        deck.style.transform = `scale(${scale})`;
+      }
+
+      document.getElementById("prev").onclick = () => show(i - 1);
+      document.getElementById("next").onclick = () => show(i + 1);
+      document.getElementById("print").onclick = () => window.print();
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") show(i + 1);
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp") show(i - 1);
+      });
+      window.addEventListener("resize", fit);
+      fit();
+      show(0);
+    </script>
+  </body>
+</html>

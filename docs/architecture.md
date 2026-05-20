@@ -19,7 +19,7 @@ graph LR
 
 ## Boundaries
 
-- **Pure data → Typst** in `services/typst_emit.py`. No I/O, no rendering — easy to unit-test.
+- **Pure data → Typst** in `services/typst_emit.py`. No I/O, no rendering - easy to unit-test.
 - **Stateless render** in `services/typst_render.py`. Each request gets a fresh temp dir.
 - **AI provider abstraction** in `services/ai/provider.py` (the `AIProvider` ABC) with a single concrete implementation under `services/ai/`. The factory in `services/ai/factory.py` is the swap point; replacing the LLM is one file's worth of work.
 - **Frontend never knows the AI provider's name.** It calls `/api/polish` and renders the structured diff response.

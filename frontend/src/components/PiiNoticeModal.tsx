@@ -68,7 +68,7 @@ export default function PiiNoticeModal({ resume, onConfirm }: Props) {
           </div>
           <p className="text-sm text-slate-600 leading-relaxed">
             Your résumé contains personal details. Once a résumé enters a recruiter's ATS
-            or database, this data can persist and be shared — and may put you at risk
+            or database, this data can persist and be shared - and may put you at risk
             later. Choose what to keep. Redacted fields are removed from your résumé now,
             before the editor and the PDF.
           </p>

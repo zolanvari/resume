@@ -23,7 +23,7 @@ _CLIENT_LOG_LIMIT = "30/hour"
 @limiter.limit(_CLIENT_LOG_LIMIT)
 async def post_client_log(req: ClientLogRequest, request: Request) -> None:
     client_ip = request.client.host if request.client else None
-    # One line per report; stack is multi-line but kept — it is the whole point.
+    # One line per report; stack is multi-line but kept - it is the whole point.
     logger.error(
         "client error [%s] from ip=%s url=%s ua=%s\n  message: %s\n  stack: %s",
         req.kind,

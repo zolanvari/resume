@@ -7,7 +7,7 @@ optionally loads an external hook module via the CV_NOTIFY_HOOK env var
 
 If CV_NOTIFY_HOOK is unset or the module cannot be imported, every hook
 is a no-op. This is the default in any environment that hasn't configured
-one — local dev, CI, fresh deployments.
+one - local dev, CI, fresh deployments.
 """
 
 import importlib

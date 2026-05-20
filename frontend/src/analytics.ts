@@ -2,7 +2,7 @@
  * Consent-gated Google Analytics (GA4).
  *
  * gtag.js is never injected until the visitor explicitly accepts analytics
- * cookies in the consent banner — no script, no cookies, no requests to Google
+ * cookies in the consent banner - no script, no cookies, no requests to Google
  * before that. The measurement ID comes from VITE_GA_MEASUREMENT_ID at build
  * time; if it is unset, analytics is simply disabled.
  */
@@ -28,7 +28,7 @@ export function setStoredConsent(c: "granted" | "denied"): void {
   try {
     localStorage.setItem(CONSENT_KEY, c);
   } catch {
-    /* private mode — the choice holds for this session only */
+    /* private mode - the choice holds for this session only */
   }
 }
 

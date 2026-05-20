@@ -6,6 +6,7 @@ import {
   loadAnalytics,
   setStoredConsent,
 } from "../analytics";
+import { Link } from "../router";
 
 /**
  * Cookie-consent banner pinned to the bottom of every page. Google Analytics
@@ -34,11 +35,11 @@ export default function GdprBanner() {
       <div className="mx-auto max-w-3xl rounded-xl border border-slate-200 bg-white/95 backdrop-blur shadow-lg px-4 py-3 sm:flex sm:items-center sm:gap-4">
         <p className="text-xs text-slate-600 leading-relaxed">
           We use {analyticsConfigured ? "Google Analytics cookies" : "cookies"} to see
-          how the site is used — only if you accept. Your résumé itself is never tracked
+          how the site is used - only if you accept. Your résumé itself is never tracked
           or stored, and declining keeps the site fully working.{" "}
-          <a href="/privacy" className="font-medium text-indigo-700 hover:underline">
+          <Link to="/privacy" className="font-medium text-indigo-700 hover:underline">
             Privacy policy
-          </a>
+          </Link>
           .
         </p>
         <div className="mt-2 sm:mt-0 shrink-0 flex items-center gap-2">

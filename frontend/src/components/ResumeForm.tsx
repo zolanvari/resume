@@ -2,6 +2,7 @@ import { useState, type ChangeEvent, type ReactNode } from "react";
 
 import {
   type Bullet,
+  type CustomSection,
   type EducationEntry,
   type ExperienceEntry,
   type ResumeData,
@@ -10,33 +11,56 @@ import {
 } from "../types";
 import BulletEditor from "./BulletEditor";
 
+export type ResumeFormSection = "contact" | "experience" | "education" | "skills" | "sections";
+
 interface Props {
   value: ResumeData;
   onChange: (next: ResumeData) => void;
+  /**
+   * Render only this one subsection. Omit to render the full stacked form
+   * (the original behaviour). The workspace shell uses this to give each
+   * sidebar tab its own focused pane.
+   */
+  section?: ResumeFormSection;
 }
 
-export default function ResumeForm({ value, onChange }: Props) {
+export default function ResumeForm({ value, onChange, section }: Props) {
   function patch(next: Partial<ResumeData>) {
     onChange({ ...value, ...next });
   }
+  const show = (s: ResumeFormSection) => !section || section === s;
   return (
     <div className="space-y-4">
-      <ContactSection
-        value={value}
-        onChange={(contact, summary) => patch({ contact, summary })}
-      />
-      <ExperienceSection
-        items={value.experience}
-        onChange={(experience) => patch({ experience })}
-      />
-      <EducationSection
-        items={value.education}
-        onChange={(education) => patch({ education })}
-      />
-      <SkillsSection
-        items={value.skills}
-        onChange={(skills) => patch({ skills })}
-      />
+      {show("contact") && (
+        <ContactSection
+          value={value}
+          onChange={(contact, summary) => patch({ contact, summary })}
+        />
+      )}
+      {show("experience") && (
+        <ExperienceSection
+          items={value.experience}
+          onChange={(experience) => patch({ experience })}
+        />
+      )}
+      {show("education") && (
+        <EducationSection
+          items={value.education}
+          onChange={(education) => patch({ education })}
+        />
+      )}
+      {show("skills") && (
+        <SkillsSection
+          items={value.skills}
+          onChange={(skills) => patch({ skills })}
+        />
+      )}
+      {show("sections") && (
+        <CustomSectionsSection
+          items={value.sections}
+          onChange={(sections) => patch({ sections })}
+        />
+      )}
     </div>
   );
 }
@@ -156,7 +180,7 @@ function ContactSection({
         <code className="rounded bg-slate-100 px-1 py-0.5 text-[11px] text-slate-600">
           [label](https://…)
         </code>{" "}
-        — works here and in any bullet.
+        - works here and in any bullet.
       </p>
     </Section>
   );
@@ -320,6 +344,51 @@ function SkillsSection({
         ))}
       </div>
       <AddButton onClick={add} label="+ Add skill group" />
+    </Section>
+  );
+}
+
+// ─── Custom sections ────────────────────────────────────────────
+
+function CustomSectionsSection({
+  items,
+  onChange,
+}: {
+  items: CustomSection[];
+  onChange: (next: CustomSection[]) => void;
+}) {
+  function updateAt(i: number, patch: Partial<CustomSection>) {
+    onChange(items.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  }
+  function remove(i: number) {
+    onChange(items.filter((_, idx) => idx !== i));
+  }
+  function add() {
+    onChange([...items, { title: "", bullets: [] }]);
+  }
+  return (
+    <Section title="Custom sections" count={items.length} defaultOpen={items.length > 0}>
+      <p className="mb-3 text-xs text-slate-500">
+        Add sections like Certifications, Projects, Languages, or Awards. Each one
+        appears in the PDF with its own heading.
+      </p>
+      <div className="space-y-4">
+        {items.map((s, i) => (
+          <EntryCard key={i} onDelete={() => remove(i)}>
+            <Input
+              label="Section title"
+              value={s.title}
+              onChange={(v) => updateAt(i, { title: v })}
+              placeholder="Certifications"
+            />
+            <BulletList
+              bullets={s.bullets}
+              onChange={(bullets) => updateAt(i, { bullets })}
+            />
+          </EntryCard>
+        ))}
+      </div>
+      <AddButton onClick={add} label="+ Add section" />
     </Section>
   );
 }
