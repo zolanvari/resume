@@ -82,7 +82,7 @@ class LayoutSettings(BaseModel):
     bottom_margin: float = Field(default=0.0, ge=0.0, le=4.0)
     title_item_spacing: float = Field(default=9.0, ge=0.0, le=20.0)
     item_spacing: float = Field(default=9.0, ge=0.0, le=20.0)
-    text_align: Literal["left", "justify", "right"] = "left"
+    text_align: Literal["left", "justify", "right"] = "justify"
     text_direction: Literal["auto", "ltr", "rtl"] = "auto"
 
 

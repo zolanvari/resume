@@ -5,7 +5,6 @@ import {
   type LayoutSettings,
   type ResumeData,
   type Theme,
-  type Tone,
 } from "../types";
 import BackToHome from "./BackToHome";
 import DownloadButton from "./DownloadButton";
@@ -24,8 +23,6 @@ interface Props {
   onThemeChange: (t: Theme) => void;
   layout: LayoutSettings;
   onLayoutChange: (l: LayoutSettings) => void;
-  tone: Tone;
-  setTone: (t: Tone) => void;
   pdfUrl: string | null;
   rendering: boolean;
   renderError: string | null;
@@ -107,11 +104,22 @@ export default function WorkspaceShell(props: Props) {
     >
       <Header {...props} />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[232px_minmax(0,1fr)] gap-5">
-        {/* Sidebar - vertical on lg+, horizontal tab pills below lg. */}
-        <aside className="lg:sticky lg:top-[68px] lg:self-start">
-          <DesktopSidebar tabs={tabs} active={tab} onChange={setTab} />
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[232px_minmax(0,1fr)] gap-5 lg:items-stretch">
+        {/* Sidebar column - section nav at top, privacy/turnstile pushed to
+            the bottom on lg+ so they sit flush with the bottom of the right
+            column (the rendered CV preview). Mobile keeps a horizontal tab
+            pill row and renders the privacy block at the end of the page. */}
+        <aside className="lg:flex lg:flex-col lg:min-h-full lg:gap-5">
+          <div className="lg:sticky lg:top-[68px]">
+            <DesktopSidebar tabs={tabs} active={tab} onChange={setTab} />
+          </div>
           <MobileTabBar tabs={tabs} active={tab} onChange={setTab} />
+          <div className="hidden lg:block lg:mt-auto">
+            <AuxiliaryFooter
+              siteKey={props.turnstileSiteKey}
+              setTurnstileToken={props.setTurnstileToken}
+            />
+          </div>
         </aside>
 
         {/* Form ↔ Preview split */}
@@ -121,10 +129,6 @@ export default function WorkspaceShell(props: Props) {
         >
           <section className="min-w-0 flex flex-col gap-5" style={leftStyle}>
             <ActivePane tab={tab} props={props} />
-            <AuxiliaryFooter
-              siteKey={props.turnstileSiteKey}
-              setTurnstileToken={props.setTurnstileToken}
-            />
           </section>
 
           {isLg && (
@@ -143,6 +147,14 @@ export default function WorkspaceShell(props: Props) {
               title="Live preview"
             />
           </section>
+        </div>
+
+        {/* Mobile-only auxiliary footer (below the preview on small screens). */}
+        <div className="lg:hidden">
+          <AuxiliaryFooter
+            siteKey={props.turnstileSiteKey}
+            setTurnstileToken={props.setTurnstileToken}
+          />
         </div>
       </div>
     </div>
@@ -165,19 +177,6 @@ function Header(props: Props) {
           </h1>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <label className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500">
-            Tone
-            <select
-              value={props.tone}
-              onChange={(e) => props.setTone(e.target.value as Tone)}
-              className="text-xs border border-slate-300 rounded-md px-2 py-1.5 bg-white"
-              title="AI polish tone"
-            >
-              <option value="impact">Impact</option>
-              <option value="concise">Concise</option>
-              <option value="leadership">Leadership</option>
-            </select>
-          </label>
           <button
             onClick={props.onUpdatePreview}
             disabled={props.rendering}
@@ -284,7 +283,7 @@ function MobileTabBar({
 
 function ActivePane({ tab, props }: { tab: Tab; props: Props }) {
   if (tab === "template") {
-    return <ThemePicker value={props.theme} onChange={props.onThemeChange} />;
+    return <ThemePicker value={props.theme} onChange={props.onThemeChange} selectOnly />;
   }
   if (tab === "layout") {
     return <LayoutPanel value={props.layout} onChange={props.onLayoutChange} />;

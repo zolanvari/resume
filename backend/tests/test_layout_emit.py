@@ -14,7 +14,7 @@ def test_defaults():
     d = LayoutSettings()
     assert d.font_size == 10.0
     assert d.line_spacing == 0.8
-    assert d.text_align == "left"
+    assert d.text_align == "justify"
     assert d.text_direction == "auto"
 
 
@@ -36,9 +36,10 @@ def test_build_layout_args_emits_only_changed():
     args = _build_layout_args(LayoutSettings())
     assert args == [], f"unchanged layout must emit nothing, got {args}"
 
-    args = _build_layout_args(LayoutSettings(font_size=11.5, text_align="justify"))
+    # "justify" is now the default, so a non-default align ("left") must emit.
+    args = _build_layout_args(LayoutSettings(font_size=11.5, text_align="left"))
     assert "font-size: 11.5pt" in args
-    assert 'text-align: "justify"' in args
+    assert 'text-align: "left"' in args
     assert len(args) == 2, f"only changed knobs should emit, got {args}"
 
 

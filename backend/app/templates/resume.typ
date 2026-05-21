@@ -779,7 +779,7 @@
     font-size: 10pt, line-spacing: 0.8em, body-line-spacing: 0.55em,
     section-spacing: 23pt, margin-x: 1.5cm, header-space: 1.7cm,
     footer-space: 1.5cm, bottom-margin: 0cm, title-item-spacing: 9pt,
-    item-spacing: 9pt, text-align: "left", text-direction: "auto",
+    item-spacing: 9pt, text-align: "justify", text-direction: "auto",
   )
   font-size = if font-size != none { font-size } else { lo.at("font-size", default: _ld.font-size) }
   line-spacing = if line-spacing != none { line-spacing } else { lo.at("line-spacing", default: _ld.line-spacing) }
@@ -1014,15 +1014,20 @@
   values.join(" · ")
 }
 
-#let resume-skill-item(category, items) = {
-  set block(below: 0.6em)
-  pad[
-    #grid(
-      columns: (3fr, 9fr),
-      gutter: 10pt,
-      align: start + top,
-      resume-skill-category(category),
-      resume-skill-values(items),
-    )
-  ]
+// Inline category + values, wrapping naturally across full content width.
+// Avoids the empty right-hand whitespace the old 3fr / 9fr grid produced when
+// a category only had one or two items, while still working for résumés that
+// list many groups (each item is a self-contained block on its own line).
+#let resume-skill-item(category, items) = context {
+  let body = par(
+    justify: false,
+    hanging-indent: 0pt,
+    {
+      resume-skill-category(category)
+      h(0.45em)
+      resume-skill-values(items)
+    },
+  )
+  set block(above: 0.2em, below: 0.55em)
+  pad[#body]
 }

@@ -71,7 +71,9 @@ function ResumeApp({ path }: { path: string }) {
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [tone, setToneState] = useState<Tone>("impact");
+  // AI-polish tone. No longer user-adjustable from the editor chrome; the
+  // polish feature uses the default "impact" voice.
+  const tone: Tone = "impact";
   const [piiPending, setPiiPending] = useState<ResumeData | null>(null);
   const [layout, setLayout] = useState<LayoutSettings>(DEFAULT_LAYOUT);
   const layoutTimer = useRef<number | null>(null);
@@ -205,8 +207,6 @@ function ResumeApp({ path }: { path: string }) {
           onThemeChange={handleThemeChange}
           layout={layout}
           onLayoutChange={handleLayoutChange}
-          tone={tone}
-          setTone={setToneState}
           pdfUrl={pdfUrl}
           rendering={rendering}
           renderError={renderError}

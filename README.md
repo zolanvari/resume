@@ -39,9 +39,16 @@ See [docs/architecture.md](docs/architecture.md) for the request-flow walkthroug
 
 ## Privacy
 
-This demo does not store résumés. There is no database. Form content is sent to the server only when you click **Update preview** or **Polish**, processed in a per-request temporary directory, and discarded as soon as the response returns. The AI provider sees the bullet text for the bullets you choose to polish; nothing else.
+**By default, résumé content is not persisted.** Your résumé is processed transiently: form content is sent to the server when you upload/paste, click **Update preview**, or **Polish**, handled in memory and a per-request temporary directory, and discarded as soon as the response returns. Full résumé content is never written to our database.
 
-If you submit the optional **Subscribe** form, your name and email are kept only to send the product updates you opted in to receive. Unsubscribe anytime.
+What does leave your browser, and when:
+
+- **AI processing.** On upload/paste, the full résumé *text* is sent to Google Gemini (on GCP) to extract structured fields. On **Polish**, the bullet text you select is sent to Gemini. No other third party receives résumé content.
+- **Opt-in consent store.** There is a small SQLite store (`/data/cv.db`, enabled only when `STORE_ENCRYPTION_KEY` is set). If — and only if — you tick the optional consent box at the download step, it stores your **name, email, and résumé headline**, with name and email encrypted at rest (Fernet). It never stores the résumé body, phone, or address.
+- **Owner copy on consent.** When you opt in at download, a copy of the generated PDF is also sent privately to the site owner (over Telegram) for follow-up. Your own download happens client-side and never depends on this.
+- **Operational logs.** The optional **Subscribe** form and client-side error reports record name/email/IP in server logs (not the database) for abuse-prevention and debugging.
+
+You can request access or deletion of any consented data anytime — email **info@zolanvari.com**. See the in-app [privacy policy](https://cv.zolanvari.com/privacy) for the user-facing version.
 
 ## Cost and abuse posture
 
@@ -79,6 +86,7 @@ To enable Cloudflare Turnstile locally, set `VITE_TURNSTILE_SITE_KEY` in `fronte
 | `POST` | `/api/polish` | `{resume, bullet_ids, tone, turnstile_token}` | `{polished: PolishedBullet[]}` |
 | `POST` | `/api/parse`  | multipart `file` (PDF/txt) **or** `text`, plus `turnstile_token` | `ResumeData` |
 | `POST` | `/api/subscribe` | `{name, email, consent, turnstile_token}` | `{ok: true}` |
+| `POST` | `/api/consent-download` | `{resume, theme, name, email, turnstile_token}` | `{ok: true}` (opt-in: stores name/email/headline encrypted, sends owner a CV copy) |
 
 `PolishedBullet`:
 ```

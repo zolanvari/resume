@@ -41,11 +41,13 @@ export default function PrivacyPolicy() {
           </p>
 
           <Section title="1. What we store">
-            By default we store nothing. Your résumé - every field, including phone,
-            email and address - lives only in your browser while you use the page. The
-            one exception is the download step: if you tick the optional consent box
-            there, we store your name, email and résumé headline (job title) so we can
-            send you occasional project news. Nothing else is stored, ever.
+            By default we store no résumé content. Your résumé - every field, including
+            phone, email and address - lives only in your browser while you use the page,
+            and its body is never written to our database. The one exception is the
+            download step: if you tick the optional consent box there, we store your name,
+            email and résumé headline (job title), with name and email encrypted at rest,
+            so we can send you occasional project news. We never store the résumé body,
+            phone or address.
           </Section>
 
           <Section title="2. How your résumé is processed">
@@ -65,7 +67,7 @@ export default function PrivacyPolicy() {
             Downloading your PDF never requires consent. If you choose to opt in, the
             stored name, email and headline are encrypted at rest, and a copy of your
             generated CV is sent privately to the site owner so they can follow up. You
-            can withdraw at any time - see section 6.
+            can withdraw at any time - see section 8.
           </Section>
 
           <Section title="5. Analytics & cookies">
@@ -100,7 +102,15 @@ export default function PrivacyPolicy() {
             own cookies or tokens; see Cloudflare's privacy policy for details.
           </Section>
 
-          <Section title="7. Your rights & removing your data">
+          <Section title="7. Operational logs">
+            For security and debugging, our server keeps short-lived request logs. If you
+            submit the optional subscribe form, or if the app reports a client-side error,
+            those logs may include your name, email or IP address. They are not part of
+            the database above and are not used for marketing. Résumé content is not
+            written to these logs.
+          </Section>
+
+          <Section title="8. Your rights & removing your data">
             To access, correct or delete any data you consented to store, email{" "}
             <a
               href="mailto:info@zolanvari.com"

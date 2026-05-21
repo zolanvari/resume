@@ -7,6 +7,13 @@ import { THEMES, type Theme } from "../types";
 interface Props {
   value: Theme;
   onChange: (t: Theme) => void;
+  /**
+   * When true, clicking a tile only selects the theme - no fullscreen preview
+   * modal opens. Used inside the editor where the live preview already shows
+   * the full result, so the modal would be redundant. Default `false`
+   * preserves the landing-page browsing behaviour.
+   */
+  selectOnly?: boolean;
 }
 
 // Module-level cache: one entry per theme slug. SVG pages are returned by
@@ -97,7 +104,7 @@ function ThumbnailImage({ urls, label }: { urls: string[] | null; label: string 
   );
 }
 
-export default function ThemePicker({ value, onChange }: Props) {
+export default function ThemePicker({ value, onChange, selectOnly = false }: Props) {
   const selectedIdx = Math.max(
     0,
     THEMES.findIndex((t) => t.slug === value),
@@ -105,10 +112,12 @@ export default function ThemePicker({ value, onChange }: Props) {
   const selected = THEMES[selectedIdx];
 
   // The full-size preview is addressable as ?preview=<slug>, so the browser's
-  // Back button - like Esc and the × button - dismisses it.
+  // Back button - like Esc and the × button - dismisses it. In select-only
+  // mode (e.g. inside the editor where the live preview is already shown),
+  // we ignore the param so the modal never opens.
   const previewParam = useSearchParam("preview");
   const previewSlug: Theme | null =
-    previewParam && THEMES.some((t) => t.slug === previewParam)
+    !selectOnly && previewParam && THEMES.some((t) => t.slug === previewParam)
       ? (previewParam as Theme)
       : null;
 
@@ -126,7 +135,9 @@ export default function ThemePicker({ value, onChange }: Props) {
         <div>
           <h3 className="text-base font-semibold text-slate-900">Template</h3>
           <p className="text-xs text-slate-500">
-            Pick a look. Click any tile to preview full size.
+            {selectOnly
+              ? "Pick a look. Click a tile to apply it - the live preview updates."
+              : "Pick a look. Click any tile to preview full size."}
           </p>
         </div>
         <span className="text-xs font-medium text-indigo-700 bg-indigo-100 rounded-full px-3 py-1.5 whitespace-nowrap">
@@ -157,8 +168,9 @@ export default function ThemePicker({ value, onChange }: Props) {
                 }}
                 onClick={() => {
                   if (!isSelected) onChange(t.slug);
-                  navigate(withParam("preview", t.slug));
+                  if (!selectOnly) navigate(withParam("preview", t.slug));
                 }}
+                title={selectOnly ? `Apply ${t.label}` : `${t.label}. Click to preview`}
               />
             );
           })}
@@ -193,15 +205,16 @@ interface TileProps {
   isSelected: boolean;
   style: CSSProperties;
   onClick: () => void;
+  title?: string;
 }
 
-function ThumbnailTile({ slug, label, isSelected, style, onClick }: TileProps) {
+function ThumbnailTile({ slug, label, isSelected, style, onClick, title }: TileProps) {
   const urls = useThemePreview(slug);
   return (
     <button
       type="button"
       onClick={onClick}
-      title={`${label}. Click to preview`}
+      title={title ?? `${label}. Click to preview`}
       style={style}
       className={[
         "relative flex-1 min-w-0 max-w-[112px] aspect-[1/1.414] rounded-lg overflow-hidden border-2 shadow-md transition-transform duration-200 ease-out bg-white cursor-pointer select-none",

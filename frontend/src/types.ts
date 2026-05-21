@@ -167,6 +167,6 @@ export const DEFAULT_LAYOUT: LayoutSettings = {
   bottom_margin: 0,
   title_item_spacing: 9,
   item_spacing: 9,
-  text_align: "left",
+  text_align: "justify",
   text_direction: "auto",
 };
