@@ -7,7 +7,13 @@ class Settings(BaseSettings):
     )
 
     gemini_api_key: str = ""
-    model_name: str = "gemini-2.5-flash"
+    # Primary model, with a fallback used when the primary times out. Both must
+    # be models the API key can call with generateContent.
+    model_name: str = "gemini-3.5-flash"
+    model_fallback: str = "gemini-2.5-flash"
+    # Per-attempt wall-clock budget for a single Gemini call. Two attempts
+    # (primary + fallback) must fit inside nginx's 60s /api proxy_read_timeout.
+    ai_timeout_seconds: float = 25.0
     ai_enabled: bool = True
 
     turnstile_secret_key: str = ""

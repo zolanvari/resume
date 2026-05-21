@@ -66,7 +66,13 @@ async def post_parse(
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    parsed = await provider.parse_resume(raw_text)
+    try:
+        parsed = await provider.parse_resume(raw_text)
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="Parsing timed out. Try again, or start blank and paste your details.",
+        ) from exc
     asyncio.create_task(
         notify_upload(
             ip=client_ip,

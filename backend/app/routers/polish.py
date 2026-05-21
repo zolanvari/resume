@@ -57,5 +57,11 @@ async def post_polish(req: PolishRequest, request: Request) -> PolishResponse:
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    polished = await provider.polish_bullets(bullets, tone=req.tone)
+    try:
+        polished = await provider.polish_bullets(bullets, tone=req.tone)
+    except TimeoutError as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="AI polishing timed out. Please try again.",
+        ) from exc
     return PolishResponse(polished=polished)

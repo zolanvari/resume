@@ -4,7 +4,9 @@ This is the only file that imports the Gemini SDK. The rest of the app
 talks to the abstract `AIProvider`.
 """
 
+import asyncio
 import json
+import logging
 import uuid
 from pathlib import Path
 
@@ -14,6 +16,8 @@ from google.genai import types
 from app.config import settings
 from app.schemas import Bullet, Contact, PolishedBullet, ResumeData
 from app.services.ai.provider import AIProvider
+
+logger = logging.getLogger("resume-builder")
 
 PROMPT_PATH = Path(__file__).resolve().parent.parent.parent / "prompts" / "polish.md"
 
@@ -159,12 +163,57 @@ def _load_polish_prompt() -> str:
     return PROMPT_PATH.read_text(encoding="utf-8")
 
 
+def _model_chain() -> list[str]:
+    """Primary model first, then the fallback, de-duplicated and non-empty."""
+    chain: list[str] = []
+    for name in (settings.model_name, settings.model_fallback):
+        name = (name or "").strip()
+        if name and name not in chain:
+            chain.append(name)
+    return chain
+
+
 class GeminiProvider(AIProvider):
     def __init__(self) -> None:
         if not settings.gemini_api_key:
             raise RuntimeError("AI provider is not configured")
         self._client = genai.Client(api_key=settings.gemini_api_key)
         self._polish_instruction = _load_polish_prompt()
+
+    async def _generate(
+        self, *, contents: object, config: types.GenerateContentConfig
+    ) -> object:
+        """Call generate_content on the primary model, falling back to the next
+        model in the chain when an attempt exceeds `ai_timeout_seconds`.
+
+        The SDK (google-genai 0.3.0) exposes no request timeout, so the budget
+        is enforced with asyncio.wait_for; a timed-out attempt is cancelled
+        before the next model is tried. Non-timeout errors are not retried -
+        they propagate so the caller surfaces the real failure.
+        """
+        chain = _model_chain()
+        last_timeout: asyncio.TimeoutError | None = None
+        for index, model in enumerate(chain):
+            try:
+                return await asyncio.wait_for(
+                    self._client.aio.models.generate_content(
+                        model=model, contents=contents, config=config
+                    ),
+                    timeout=settings.ai_timeout_seconds,
+                )
+            except asyncio.TimeoutError as exc:
+                last_timeout = exc
+                has_fallback = index + 1 < len(chain)
+                logger.warning(
+                    "Gemini model %r timed out after %.0fs%s",
+                    model,
+                    settings.ai_timeout_seconds,
+                    f"; falling back to {chain[index + 1]!r}" if has_fallback else "",
+                )
+        raise TimeoutError(
+            f"All Gemini models timed out after {settings.ai_timeout_seconds:.0f}s "
+            f"each: {chain}"
+        ) from last_timeout
 
     async def polish_bullets(
         self,
@@ -177,8 +226,7 @@ class GeminiProvider(AIProvider):
             "role_context": role_context,
             "bullets": [{"bullet_id": b.id, "text": b.text} for b in bullets],
         }
-        response = await self._client.aio.models.generate_content(
-            model=settings.model_name,
+        response = await self._generate(
             contents=json.dumps(user_payload),
             config=types.GenerateContentConfig(
                 system_instruction=self._polish_instruction,
@@ -191,8 +239,7 @@ class GeminiProvider(AIProvider):
         return [PolishedBullet(**item) for item in data.get("polished", [])]
 
     async def parse_resume(self, raw_text: str) -> ResumeData:
-        response = await self._client.aio.models.generate_content(
-            model=settings.model_name,
+        response = await self._generate(
             contents=raw_text,
             config=types.GenerateContentConfig(
                 system_instruction=_PARSE_SYSTEM_INSTRUCTION,
