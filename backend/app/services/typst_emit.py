@@ -125,7 +125,12 @@ def _skills_section(skills: list[SkillGroup]) -> str:
     out: list[str] = ["= Skills\n"]
     for g in skills:
         items_lit = ", ".join(f'"{_ts(i)}"' for i in g.items)
-        out.append(f'#resume-skill-item("{_ts(g.category)}", ({items_lit},))\n')
+        # A category that just says "Skills" (or is blank) only repeats the
+        # section heading, so emit it label-less to avoid the doubled "Skills".
+        category = g.category.strip()
+        if category.casefold() == "skills":
+            category = ""
+        out.append(f'#resume-skill-item("{_ts(category)}", ({items_lit},))\n')
     return "".join(out)
 
 

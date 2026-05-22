@@ -163,6 +163,13 @@ def _load_polish_prompt() -> str:
     return PROMPT_PATH.read_text(encoding="utf-8")
 
 
+# Résumé parsing and bullet polishing are deterministic structured-output
+# tasks that don't benefit from extended reasoning. Gemini 3 models enable
+# "thinking" by default, which tripled parse latency (~3s -> ~10-20s) and risked
+# the request timeout. Disabling it keeps calls fast without hurting quality.
+_NO_THINKING = types.ThinkingConfig(thinking_budget=0)
+
+
 def _model_chain() -> list[str]:
     """Primary model first, then the fallback, de-duplicated and non-empty."""
     chain: list[str] = []
@@ -186,10 +193,10 @@ class GeminiProvider(AIProvider):
         """Call generate_content on the primary model, falling back to the next
         model in the chain when an attempt exceeds `ai_timeout_seconds`.
 
-        The SDK (google-genai 0.3.0) exposes no request timeout, so the budget
-        is enforced with asyncio.wait_for; a timed-out attempt is cancelled
-        before the next model is tried. Non-timeout errors are not retried -
-        they propagate so the caller surfaces the real failure.
+        The budget is enforced with asyncio.wait_for (wall-clock, including
+        connection setup); a timed-out attempt is cancelled before the next
+        model is tried. Non-timeout errors are not retried - they propagate so
+        the caller surfaces the real failure.
         """
         chain = _model_chain()
         last_timeout: asyncio.TimeoutError | None = None
@@ -233,6 +240,7 @@ class GeminiProvider(AIProvider):
                 response_mime_type="application/json",
                 response_schema=_POLISH_RESPONSE_SCHEMA,
                 temperature=0.4,
+                thinking_config=_NO_THINKING,
             ),
         )
         data = json.loads(response.text or "{}")
@@ -246,6 +254,7 @@ class GeminiProvider(AIProvider):
                 response_mime_type="application/json",
                 response_schema=_RESUME_SCHEMA,
                 temperature=0.1,
+                thinking_config=_NO_THINKING,
             ),
         )
         data = json.loads(response.text or "{}")

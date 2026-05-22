@@ -324,10 +324,10 @@ function SkillsSection({
         {items.map((g, i) => (
           <EntryCard key={i} onDelete={() => remove(i)}>
             <Input
-              label="Category"
+              label="Category (optional)"
               value={g.category}
               onChange={(v) => updateAt(i, { category: v })}
-              placeholder="Languages"
+              placeholder="e.g. Languages, Frameworks, Tools"
             />
             <FieldLabel className="mt-3">Items (comma-separated)</FieldLabel>
             <Textarea

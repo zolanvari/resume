@@ -1004,27 +1004,36 @@
   ]
 }
 
-#let resume-skill-category(category) = {
-  set text(size: 10pt, weight: "bold", hyphenate: false, fill: cv-indigo-700)
+// Theme-aware: the category label tracks the theme accent and the values the
+// theme body ink, so skills stay legible on dark themes (e.g. midnight-prism)
+// instead of rendering near-black on a dark background.
+#let resume-skill-category(category) = context {
+  set text(size: 10pt, weight: "bold", hyphenate: false, fill: cv-accent.get())
   category
 }
 
-#let resume-skill-values(values) = {
-  set text(size: 10pt, weight: "regular", fill: cv-ink-deep)
+#let resume-skill-values(values) = context {
+  set text(size: 10pt, weight: "regular", fill: cv-body-fill.get())
   values.join(" · ")
 }
 
 // Inline category + values, wrapping naturally across full content width.
 // Avoids the empty right-hand whitespace the old 3fr / 9fr grid produced when
 // a category only had one or two items, while still working for résumés that
-// list many groups (each item is a self-contained block on its own line).
+// list many groups (each item is a self-contained block on its own line). An
+// empty category (e.g. a lone group that just repeats the "Skills" heading)
+// renders the values alone, with no dangling label or indent.
 #let resume-skill-item(category, items) = context {
+  let label = if type(category) == str { category.trim() } else { category }
+  let has-label = if type(label) == str { label != "" } else { label != none }
   let body = par(
     justify: false,
     hanging-indent: 0pt,
     {
-      resume-skill-category(category)
-      h(0.45em)
+      if has-label {
+        resume-skill-category(label)
+        h(0.45em)
+      }
       resume-skill-values(items)
     },
   )

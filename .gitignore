@@ -29,8 +29,14 @@ Thumbs.db
 
 # Build / temp
 *.pdf
-!docs/**/*.pdf
 *.log
+
+# Docs: internal launch assets, icon packs, slide carousels, working notes.
+# Ignore the folder's contents but keep architecture.md, which the README
+# links to. (Ignore children with docs/* - not docs/ - so git still descends
+# into the folder and honours the negation below.)
+docs/*
+!docs/architecture.md
 
 # Docker compose local overrides
 docker-compose.override.yml

@@ -104,22 +104,22 @@ export default function WorkspaceShell(props: Props) {
     >
       <Header {...props} />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[232px_minmax(0,1fr)] gap-5 lg:items-stretch">
-        {/* Sidebar column - section nav at top, privacy/turnstile pushed to
-            the bottom on lg+ so they sit flush with the bottom of the right
-            column (the rendered CV preview). Mobile keeps a horizontal tab
-            pill row and renders the privacy block at the end of the page. */}
-        <aside className="lg:flex lg:flex-col lg:min-h-full lg:gap-5">
-          <div className="lg:sticky lg:top-[68px]">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[232px_minmax(0,1fr)] gap-5 lg:items-start">
+        {/* Sidebar column - section nav with the verification widget docked
+            directly beneath it, sharing the column's width. Mobile collapses
+            the nav to a horizontal pill row; its verification card renders
+            below the preview at the end of the page. */}
+        <aside>
+          <div className="hidden lg:flex lg:flex-col lg:gap-4 lg:sticky lg:top-[68px]">
             <DesktopSidebar tabs={tabs} active={tab} onChange={setTab} />
+            {isLg && props.turnstileSiteKey && (
+              <VerificationCard
+                siteKey={props.turnstileSiteKey}
+                setTurnstileToken={props.setTurnstileToken}
+              />
+            )}
           </div>
           <MobileTabBar tabs={tabs} active={tab} onChange={setTab} />
-          <div className="hidden lg:block lg:mt-auto">
-            <AuxiliaryFooter
-              siteKey={props.turnstileSiteKey}
-              setTurnstileToken={props.setTurnstileToken}
-            />
-          </div>
         </aside>
 
         {/* Form ↔ Preview split */}
@@ -149,14 +149,25 @@ export default function WorkspaceShell(props: Props) {
           </section>
         </div>
 
-        {/* Mobile-only auxiliary footer (below the preview on small screens). */}
-        <div className="lg:hidden">
-          <AuxiliaryFooter
-            siteKey={props.turnstileSiteKey}
-            setTurnstileToken={props.setTurnstileToken}
-          />
-        </div>
+        {/* Mobile-only verification widget (below the preview on small screens). */}
+        {!isLg && props.turnstileSiteKey && (
+          <div className="lg:hidden">
+            <VerificationCard
+              siteKey={props.turnstileSiteKey}
+              setTurnstileToken={props.setTurnstileToken}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Footer - full-width hairline above a compact privacy notice. */}
+      <footer className="border-t border-slate-200 bg-white/55 backdrop-blur-sm">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
+          <div className="max-w-4xl">
+            <PrivacyNote />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -298,23 +309,65 @@ function ActivePane({ tab, props }: { tab: Tab; props: Props }) {
   );
 }
 
-function AuxiliaryFooter({
+// ─── Verification (Cloudflare Turnstile) ─────────────────────────
+
+/**
+ * The Turnstile widget in a card that matches the sidebar's width. Cloudflare
+ * renders the widget at a fixed 300px; FittedTurnstile scales it down to fill
+ * whatever width the card gives it (the 232px sidebar column, or full width on
+ * mobile) so it never overflows.
+ */
+function VerificationCard({
   siteKey,
   setTurnstileToken,
 }: {
-  siteKey: string | undefined;
+  siteKey: string;
   setTurnstileToken: (t: string | null) => void;
 }) {
   return (
-    <div className="space-y-4 pt-2">
-      {siteKey && (
+    <div className="rounded-xl border border-slate-200 bg-white p-3">
+      <p className="px-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+        Verification
+      </p>
+      <FittedTurnstile siteKey={siteKey} setTurnstileToken={setTurnstileToken} />
+    </div>
+  );
+}
+
+function FittedTurnstile({
+  siteKey,
+  setTurnstileToken,
+}: {
+  siteKey: string;
+  setTurnstileToken: (t: string | null) => void;
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const NATURAL_W = 300;
+  const NATURAL_H = 65;
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth;
+      setScale(w >= NATURAL_W ? 1 : Math.max(0.5, w / NATURAL_W));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div ref={wrapRef} className="overflow-hidden" style={{ height: NATURAL_H * scale }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: NATURAL_W }}>
         <TurnstileWidget
           siteKey={siteKey}
           onToken={setTurnstileToken}
           onExpire={() => setTurnstileToken(null)}
         />
-      )}
-      <PrivacyNote />
+      </div>
     </div>
   );
 }
